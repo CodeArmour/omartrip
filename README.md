@@ -67,3 +67,9 @@ Use `omarcode.dev` for the frontend and `api.omarcode.dev` for the Spring Boot
 API. Point the domains from Namecheap DNS to the selected hosting providers,
 then set the production CORS, frontend URL, OAuth callbacks, database and
 server-only integration variables on the backend host.
+
+This repository includes `render.yaml` and `backend/Dockerfile` for a Render
+web service. In Render, connect this repository and create the Blueprint. The
+service uses `backend/` as its root directory and checks readiness at
+`/api/v1/health`. Add a managed PostgreSQL database separately, then provide a
+JDBC-formatted `DATABASE_URL` and the remaining values marked `sync: false`.
