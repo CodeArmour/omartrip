@@ -160,6 +160,19 @@ a {
     transform 240ms ease;
 }
 
+.nav-left-controls {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  justify-self: start;
+  pointer-events: auto;
+}
+
+.nav-menu-control {
+  display: none;
+  cursor: pointer;
+}
+
 .nav-theme-control {
   justify-self: start;
   cursor: pointer;
@@ -217,6 +230,7 @@ a {
 
 .nav-right-controls {
   display: flex;
+  grid-column: 3;
   gap: 0.55rem;
   align-items: center;
   justify-self: end;
@@ -352,6 +366,7 @@ a {
 
 .nav-pill {
   display: flex;
+  grid-column: 2;
   gap: 0.2rem;
   align-items: center;
   justify-content: center;
@@ -692,6 +707,10 @@ h2 {
   color: var(--off-white);
   background: transparent;
   font-size: 0.9rem;
+}
+
+.assistant-form input:focus-visible {
+  outline: 0;
 }
 
 .assistant-form input::placeholder {
@@ -1708,7 +1727,13 @@ h2 {
 .project-view-link:hover,
 .project-review-button:hover,
 .project-review-back:hover {
+  color: var(--olive-deep);
   background: var(--warm-lime);
+}
+
+.project-review-back:hover svg,
+.project-review-back:focus-visible svg {
+  color: var(--olive-deep);
 }
 
 .project-view-link:hover svg:last-child {
@@ -2691,9 +2716,10 @@ h2 {
 
   .floating-nav-shell {
     top: 0.85rem;
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
-    gap: 0.45rem;
-    width: calc(100% - 1.25rem);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "menu spacer actions";
+    gap: 0.48rem;
+    width: calc(100% - 1rem);
   }
 
   .nav-control {
@@ -2701,8 +2727,52 @@ h2 {
     height: 44px;
   }
 
-  .nav-call-control {
+  .nav-left-controls {
+    grid-area: menu;
+    gap: 0.42rem;
+  }
+
+  .nav-menu-control {
+    display: inline-flex;
+  }
+
+  .nav-right-controls {
+    grid-area: actions;
+    gap: 0.42rem;
+  }
+
+  .nav-account-control {
+    width: 44px;
+    max-width: 44px;
     padding: 0;
+  }
+
+  .nav-account-label,
+  .nav-account-chevron {
+    display: none;
+  }
+
+  .nav-account-avatar {
+    width: 27px;
+    height: 27px;
+  }
+
+  .nav-account-menu {
+    position: fixed;
+    top: 3.7rem;
+    right: 0.5rem;
+    width: min(300px, calc(100vw - 1rem));
+  }
+
+  .nav-call-control {
+    width: 44px;
+    padding: 0;
+  }
+
+  .nav-call-control svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
   }
 
   .nav-call-control span {
@@ -2715,21 +2785,33 @@ h2 {
   }
 
   .nav-pill {
-    min-width: 0;
-    min-height: 50px;
-    overflow-x: auto;
-    justify-content: flex-start;
-    scrollbar-width: none;
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    left: 0;
+    right: 0;
+    display: none;
+    min-height: 0;
+    padding: 0.45rem;
+    border-radius: 22px;
+    grid-column: auto;
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    justify-content: stretch;
   }
 
-  .nav-pill::-webkit-scrollbar {
-    display: none;
+  .nav-pill.is-mobile-open {
+    display: grid;
   }
 
   .nav-link {
-    min-height: 40px;
-    padding: 0 0.75rem;
-    font-size: 0.78rem;
+    display: flex;
+    min-height: 44px;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    font-size: 0.84rem;
+    text-align: left;
   }
 
   .anchor-section {
@@ -2948,7 +3030,23 @@ h2 {
   .project-visual-front > p {
     min-height: 0;
     margin-bottom: 1rem;
-    padding-right: 8.5rem;
+    padding-right: 0;
+  }
+
+  .project-hover-actions {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 5;
+    margin-bottom: 1rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  .project-view-link,
+  .project-review-button {
+    flex: 1;
+    justify-content: center;
   }
 
   .project-frame-bar {
@@ -2989,6 +3087,11 @@ h2 {
 
 @media (hover: none), (pointer: coarse) {
   .project-hover-actions {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 5;
+    margin-bottom: 1rem;
     opacity: 1;
     transform: none;
   }
@@ -2996,6 +3099,10 @@ h2 {
   .project-view-link,
   .project-review-button {
     min-height: 44px;
+  }
+
+  .project-visual-front > p {
+    padding-right: 0;
   }
 
   .explore-card-glow {
@@ -4479,6 +4586,139 @@ h2 {
   :is(a, button, input, textarea, select):focus-visible {
   outline-color: #66812d;
   outline-offset: 4px;
+}
+
+:root[data-theme="light"] .owner-bookings {
+  border-color: rgba(47, 58, 29, 0.16);
+  color: #253315;
+  background:
+    linear-gradient(145deg, rgba(207, 255, 116, 0.16), transparent 44%),
+    rgba(255, 253, 246, 0.9);
+  box-shadow:
+    0 20px 55px rgba(47, 58, 29, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.92) inset;
+}
+
+:root[data-theme="light"] .owner-bookings-confirmed {
+  border-color: rgba(47, 58, 29, 0.14);
+  background:
+    linear-gradient(145deg, rgba(102, 129, 45, 0.1), transparent 48%),
+    rgba(255, 253, 246, 0.88);
+}
+
+:root[data-theme="light"] .owner-bookings-header > div > span,
+:root[data-theme="light"] .owner-bookings-header > strong {
+  color: #4f691f;
+}
+
+:root[data-theme="light"] .owner-bookings-count {
+  border-color: rgba(79, 105, 31, 0.22);
+  background: rgba(207, 255, 116, 0.26);
+}
+
+:root[data-theme="light"] .owner-workspace-connection,
+:root[data-theme="light"] .owner-bookings-state,
+:root[data-theme="light"] .owner-bookings-error {
+  border: 1px solid rgba(47, 58, 29, 0.12);
+  color: #526044;
+  background: rgba(255, 253, 246, 0.68);
+}
+
+:root[data-theme="light"] .owner-bookings-error {
+  color: #8d271c;
+  border-color: rgba(141, 39, 28, 0.24);
+  background: rgba(255, 235, 231, 0.74);
+}
+
+:root[data-theme="light"] .owner-workspace-connection button {
+  border-color: rgba(79, 105, 31, 0.28);
+  color: #253315;
+  background: rgba(207, 255, 116, 0.32);
+}
+
+:root[data-theme="light"] .owner-workspace-connection button:hover,
+:root[data-theme="light"] .owner-workspace-connection button:focus-visible {
+  border-color: #66812d;
+  color: #253315;
+  background: #cfff74;
+}
+
+:root[data-theme="light"] .owner-booking-card {
+  border-color: rgba(47, 58, 29, 0.14);
+  color: #253315;
+  background:
+    linear-gradient(115deg, rgba(207, 255, 116, 0.14), transparent 42%),
+    rgba(255, 255, 250, 0.84);
+  box-shadow:
+    0 12px 30px rgba(47, 58, 29, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.86) inset;
+}
+
+:root[data-theme="light"] .owner-booking-card:hover {
+  border-color: rgba(79, 105, 31, 0.3);
+  box-shadow:
+    0 18px 42px rgba(47, 58, 29, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.94) inset;
+}
+
+:root[data-theme="light"] .owner-bookings-confirmed .owner-booking-card {
+  border-left-color: rgba(79, 105, 31, 0.58);
+}
+
+:root[data-theme="light"] .owner-booking-status {
+  border-color: rgba(79, 105, 31, 0.22);
+  color: #354817;
+  background: rgba(207, 255, 116, 0.34);
+}
+
+:root[data-theme="light"] .owner-booking-person a,
+:root[data-theme="light"] .owner-booking-time,
+:root[data-theme="light"] .owner-booking-card > p,
+:root[data-theme="light"] .owner-booking-time span {
+  color: #526044;
+}
+
+:root[data-theme="light"] .owner-booking-person svg,
+:root[data-theme="light"] .owner-booking-time svg,
+:root[data-theme="light"] .owner-booking-meet-link {
+  color: #4f691f;
+}
+
+:root[data-theme="light"] .owner-booking-time {
+  border-color: rgba(47, 58, 29, 0.12);
+  background: rgba(242, 239, 229, 0.7);
+}
+
+:root[data-theme="light"] .owner-booking-actions {
+  border-top-color: rgba(47, 58, 29, 0.12);
+}
+
+:root[data-theme="light"] .owner-booking-actions button {
+  border-color: rgba(47, 58, 29, 0.18);
+  color: #253315;
+  background: rgba(255, 253, 246, 0.7);
+}
+
+:root[data-theme="light"] .owner-booking-actions button:hover:not(:disabled) {
+  border-color: rgba(79, 105, 31, 0.34);
+  background: rgba(207, 255, 116, 0.24);
+}
+
+:root[data-theme="light"]
+  .owner-bookings-pending
+  .owner-booking-actions
+  button:first-child {
+  color: #253315;
+  border-color: #66812d;
+  background: #cfff74;
+}
+
+:root[data-theme="light"]
+  .owner-bookings-pending
+  .owner-booking-actions
+  button:first-child:hover:not(:disabled) {
+  color: #253315;
+  background: #bdeb62;
 }
 
 @media (prefers-reduced-motion: reduce) {

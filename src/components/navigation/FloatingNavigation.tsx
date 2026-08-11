@@ -1,5 +1,6 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,6 +20,7 @@ export function FloatingNavigation() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const [activeSection, setActiveSection] = useState<NavigationId>("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isHomePage) return;
@@ -56,15 +58,38 @@ export function FloatingNavigation() {
     if (!section) return;
 
     setActiveSection(id);
+    setMobileMenuOpen(false);
     section.scrollIntoView({ behavior: "smooth", block: "start" });
     window.history.pushState(null, "", `#${id}`);
   };
 
   return (
     <header className="floating-nav-shell">
-      <ThemeToggle />
+      <div className="nav-left-controls">
+        <button
+          className="nav-control nav-menu-control"
+          type="button"
+          aria-label={
+            mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
+          }
+          aria-controls="primary-navigation"
+          aria-expanded={mobileMenuOpen}
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          {mobileMenuOpen ? (
+            <X aria-hidden="true" size={18} strokeWidth={2} />
+          ) : (
+            <Menu aria-hidden="true" size={18} strokeWidth={2} />
+          )}
+        </button>
+        <ThemeToggle />
+      </div>
 
-      <nav className="nav-pill" aria-label="Primary navigation">
+      <nav
+        id="primary-navigation"
+        className={`nav-pill${mobileMenuOpen ? " is-mobile-open" : ""}`}
+        aria-label="Primary navigation"
+      >
         {navigationItems.map(({ label, id }) => {
           const isActive = isHomePage && activeSection === id;
 
@@ -79,7 +104,12 @@ export function FloatingNavigation() {
               {label}
             </button>
           ) : (
-            <Link key={id} className="nav-link" href={`/#${id}`}>
+            <Link
+              key={id}
+              className="nav-link"
+              href={`/#${id}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
               {label}
             </Link>
           );
