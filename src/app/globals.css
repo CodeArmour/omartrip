@@ -22,9 +22,10 @@
 
 :root[data-theme="light"] {
   --olive-ink: #f2efe5;
+  --olive-deep: #253315;
   --surface-olive: rgba(255, 252, 242, 0.84);
   --border-subtle: rgba(47, 58, 29, 0.18);
-  --text-muted: rgba(47, 58, 29, 0.7);
+  --text-muted: #526044;
   --page-text: #2f3a1d;
   --dot-default: rgba(47, 58, 29, 0.16);
   --dot-revealed: rgba(102, 129, 45, 0.56);
@@ -4291,10 +4292,18 @@ h2 {
   background:
     radial-gradient(
       circle at 50% -10%,
-      rgba(207, 255, 116, 0.18),
+      rgba(207, 255, 116, 0.22),
       transparent 38%
     ),
     var(--olive-ink);
+}
+
+:root[data-theme="light"] .dot-grid::before {
+  opacity: 0.72;
+}
+
+:root[data-theme="light"] .dot-grid::after {
+  opacity: 0.84;
 }
 
 :root[data-theme="light"] .projects-heading h2 {
@@ -4386,6 +4395,90 @@ h2 {
 
 :root[data-theme="light"] .nav-theme-control:hover {
   color: #66812d;
+}
+
+:root[data-theme="light"] .nav-control,
+:root[data-theme="light"] .nav-pill {
+  border-color: rgba(47, 58, 29, 0.2);
+  color: var(--page-text);
+  background: rgba(255, 253, 246, 0.92);
+  box-shadow:
+    0 12px 30px rgba(47, 58, 29, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+:root[data-theme="light"] .nav-link {
+  color: #526044;
+}
+
+:root[data-theme="light"] .nav-link:hover,
+:root[data-theme="light"] .nav-link:focus-visible {
+  color: #253315;
+  background: rgba(102, 129, 45, 0.1);
+}
+
+:root[data-theme="light"] .nav-link[aria-current="page"] {
+  color: #253315;
+  background: #cfff74;
+  box-shadow: 0 4px 14px rgba(78, 103, 25, 0.18);
+}
+
+:root[data-theme="light"] .nav-call-control {
+  border-color: rgba(47, 58, 29, 0.24);
+  color: #253315;
+  background: #cfff74;
+  box-shadow: 0 10px 24px rgba(78, 103, 25, 0.16);
+}
+
+:root[data-theme="light"] .nav-call-control:hover,
+:root[data-theme="light"] .nav-call-control:focus-visible {
+  color: #253315;
+  background: #bdeb62;
+}
+
+:root[data-theme="light"] :is(.nav-account-menu, .nav-account-control) {
+  border-color: rgba(47, 58, 29, 0.2);
+  background: rgba(255, 253, 246, 0.98);
+  color: var(--page-text);
+  box-shadow: 0 18px 44px rgba(47, 58, 29, 0.16);
+}
+
+:root[data-theme="light"] .nav-account-menu p,
+:root[data-theme="light"] .nav-account-identity span {
+  color: #526044;
+}
+
+:root[data-theme="light"]
+  :is(
+    .projects-heading > p:last-child,
+    .skills-heading > p:last-child,
+    .more-explore-heading > p:last-child,
+    .booking-hero > p:last-child,
+    .guestbook-hero > p:last-child,
+    .links-page-heading > p:last-child
+  ) {
+  color: #526044;
+}
+
+:root[data-theme="light"] :is(.site-footer, .footer-social-links a) {
+  border-color: rgba(47, 58, 29, 0.2);
+}
+
+:root[data-theme="light"] .footer-social-links a {
+  color: #526044;
+  background: rgba(255, 253, 246, 0.68);
+}
+
+:root[data-theme="light"] .footer-social-links a:hover,
+:root[data-theme="light"] .footer-social-links a:focus-visible,
+:root[data-theme="light"] .footer-links a:hover {
+  color: #4f691f;
+}
+
+:root[data-theme="light"]
+  :is(a, button, input, textarea, select):focus-visible {
+  outline-color: #66812d;
+  outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
