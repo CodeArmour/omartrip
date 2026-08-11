@@ -1,0 +1,28 @@
+# Next.js and frontend output
+.next/
+out/
+node_modules/
+coverage/
+*.tsbuildinfo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Local tooling and generated evidence
+.idea/
+.vscode/
+test-results/
+playwright-report/
+debug.log
+*.log
+
+# Java/Maven output
+backend/target/
+backend/.idea/
+backend/*.iml
+

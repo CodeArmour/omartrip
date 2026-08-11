@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:portfolio;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  flyway:
+    enabled: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+portfolio:
+  auth:
+    frontend-base-url: http://localhost:3000
+    owner-github-logins: CodeArmour
+    owner-google-emails: omarcode.business@gmail.com
+  cors:
+    allowed-origins: http://localhost:3000
+  booking:
+    timezone: Europe/Brussels
+    duration-minutes: 30
+    buffer-before-minutes: 0
+    buffer-after-minutes: 15
+    minimum-notice-hours: 24
+    maximum-advance-days: 60
+    availability-rules:
+      - day-of-week: 1
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 2
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 3
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 4
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 5
+        start-time: "09:00"
+        end-time: "15:30"
+  contact:
+    max-submissions-per-hour: 3
+  guestbook:
+    max-messages-per-hour: 5
+    duplicate-window-minutes: 10
+    admin-github-logins: CodeArmour

@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google-workspace:
+            provider: google-workspace
+            client-id: ${GOOGLE_WORKSPACE_CLIENT_ID}
+            client-secret: ${GOOGLE_WORKSPACE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${GOOGLE_WORKSPACE_REDIRECT_URI:http://localhost:8081/login/oauth2/code/google-workspace}
+            scope: openid,profile,email,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/gmail.send
+        provider:
+          google-workspace:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+            issuer-uri: https://accounts.google.com
+            user-name-attribute: sub

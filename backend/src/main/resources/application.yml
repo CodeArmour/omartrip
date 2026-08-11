@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: portfolio-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/omar_portfolio}
+    username: ${DATABASE_USERNAME:portfolio}
+    password: ${DATABASE_PASSWORD:portfolio-local}
+    hikari:
+      maximum-pool-size: ${DATABASE_POOL_SIZE:10}
+      minimum-idle: 2
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8081}
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
+  paths-to-match: /api/**
+
+portfolio:
+  auth:
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+    owner-github-logins: ${PORTFOLIO_OWNER_GITHUB_LOGINS:${GUESTBOOK_ADMIN_GITHUB_LOGINS:CodeArmour}}
+    owner-google-emails: ${PORTFOLIO_OWNER_GOOGLE_EMAILS:}
+  cors:
+    allowed-origins: ${FRONTEND_ORIGINS:http://localhost:3000}
+  booking:
+    timezone: Europe/Brussels
+    duration-minutes: 30
+    buffer-before-minutes: 0
+    buffer-after-minutes: 15
+    minimum-notice-hours: 24
+    maximum-advance-days: 60
+    availability-rules:
+      - day-of-week: 1
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 2
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 3
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 4
+        start-time: "09:00"
+        end-time: "17:00"
+      - day-of-week: 5
+        start-time: "09:00"
+        end-time: "15:30"
+  contact:
+    max-submissions-per-hour: ${CONTACT_MAX_SUBMISSIONS_PER_HOUR:3}
+  assistant:
+    openai-api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-5.6-luna}
+    embedding-model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    max-requests-per-hour: ${ASSISTANT_MAX_REQUESTS_PER_HOUR:30}
+  guestbook:
+    max-messages-per-hour: ${GUESTBOOK_MAX_MESSAGES_PER_HOUR:5}
+    duplicate-window-minutes: ${GUESTBOOK_DUPLICATE_WINDOW_MINUTES:10}
+    admin-github-logins: ${GUESTBOOK_ADMIN_GITHUB_LOGINS:CodeArmour}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+    folder: ${CLOUDINARY_PROJECT_FOLDER:omar-portfolio/projects}
+    skill-folder: ${CLOUDINARY_SKILL_FOLDER:omar-portfolio/skills}
+    profile-folder: ${CLOUDINARY_PROFILE_FOLDER:omar-portfolio/profile}
+  workspace:
+    google:
+      email: ${GOOGLE_WORKSPACE_EMAIL:hello@omarcode.dev}
+      client-id: ${GOOGLE_WORKSPACE_CLIENT_ID:}
+      client-secret: ${GOOGLE_WORKSPACE_CLIENT_SECRET:}
+      encryption-key: ${GOOGLE_WORKSPACE_ENCRYPTION_KEY:}
