@@ -26,6 +26,7 @@ type PortfolioAuthContextValue = {
   session: PortfolioAuthSession;
   providers: AuthProviderOption[];
   loading: boolean;
+  providersLoading: boolean;
   signIn: (provider: string) => void;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -54,19 +55,31 @@ export function PortfolioAuthProvider({ children }: { children: ReactNode }) {
   const [providers, setProviders] = useState<AuthProviderOption[]>([]);
   const [csrf, setCsrf] = useState<CsrfMetadata | null>(null);
   const [loading, setLoading] = useState(true);
+  const [providersLoading, setProvidersLoading] = useState(true);
+
+  const loadProviders = useCallback(async () => {
+    setProvidersLoading(true);
+    try {
+      const nextProviders = await apiFetch<AuthProviderOption[]>(
+        "/api/v1/auth/providers",
+      );
+      setProviders(nextProviders);
+    } catch {
+      setProviders([]);
+    } finally {
+      setProvidersLoading(false);
+    }
+  }, []);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     try {
-      const [nextSession, nextProviders] = await Promise.all([
-        apiFetch<PortfolioAuthSession>("/api/v1/auth/me"),
-        apiFetch<AuthProviderOption[]>("/api/v1/auth/providers"),
-      ]);
+      const nextSession =
+        await apiFetch<PortfolioAuthSession>("/api/v1/auth/me");
       setSession(nextSession);
-      setProviders(nextProviders);
       if (!nextSession.authenticated) setCsrf(null);
     } catch {
       setSession(signedOut);
-      setProviders([]);
       setCsrf(null);
     } finally {
       setLoading(false);
@@ -74,14 +87,20 @@ export function PortfolioAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const initialLoad = window.setTimeout(() => void refresh(), 0);
-    const sync = () => void refresh();
+    const initialLoad = window.setTimeout(() => {
+      void refresh();
+      void loadProviders();
+    }, 0);
+    const sync = () => {
+      void refresh();
+      void loadProviders();
+    };
     window.addEventListener("portfolio-auth-changed", sync);
     return () => {
       window.clearTimeout(initialLoad);
       window.removeEventListener("portfolio-auth-changed", sync);
     };
-  }, [refresh]);
+  }, [loadProviders, refresh]);
 
   const csrfHeaders = useCallback(async () => {
     const metadata =
@@ -117,12 +136,22 @@ export function PortfolioAuthProvider({ children }: { children: ReactNode }) {
       session,
       providers,
       loading,
+      providersLoading,
       signIn,
       signOut,
       refresh,
       csrfHeaders,
     }),
-    [session, providers, loading, signIn, signOut, refresh, csrfHeaders],
+    [
+      session,
+      providers,
+      loading,
+      providersLoading,
+      signIn,
+      signOut,
+      refresh,
+      csrfHeaders,
+    ],
   );
 
   return (

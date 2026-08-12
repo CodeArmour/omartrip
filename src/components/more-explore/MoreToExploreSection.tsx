@@ -33,8 +33,10 @@ export function MoreToExploreSection() {
       id="other"
       className="more-explore-section anchor-section"
       aria-labelledby="more-explore-title"
+      data-scroll-reveal
+      data-scroll-progress="other"
     >
-      <header className="more-explore-heading">
+      <header className="more-explore-heading" data-scroll-reveal>
         <p className="eyebrow">More</p>
         <LusterTitle id="more-explore-title">More to Explore</LusterTitle>
         <p>Check out these additional resources and connect with me.</p>

@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/projects/admin/**").authenticated()
 .requestMatchers("/api/v1/skills/admin/**").authenticated()
 .requestMatchers("/api/v1/profile/admin").authenticated()
+                        .requestMatchers("/api/v1/blog/admin/**").authenticated()
                         .requestMatchers(
                                 "/api/v1/health",
                                 "/api/v1/bookings/**",
@@ -45,8 +46,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects").permitAll()
 .requestMatchers(HttpMethod.GET, "/api/v1/skills").permitAll()
 .requestMatchers(HttpMethod.GET, "/api/v1/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/blog/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/reviews/**").authenticated()
+                        .requestMatchers("/api/v1/blog/**").authenticated()
                         .requestMatchers("/api/v1/guestbook/**").authenticated()
                         .anyRequest().permitAll())
                 .logout(logout -> logout

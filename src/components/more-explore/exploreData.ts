@@ -1,9 +1,4 @@
-import {
-  Link2,
-  MessageSquareText,
-  Trophy,
-  type LucideIcon,
-} from "lucide-react";
+import { Award, Link2, MessageSquareText, type LucideIcon } from "lucide-react";
 
 export type ExploreItem = {
   title: string;
@@ -27,7 +22,7 @@ export const exploreItems: ExploreItem[] = [
   {
     title: "Achievements",
     description: "Milestones, certifications, and accomplishments.",
-    icon: Trophy,
+    icon: Award,
     status: "coming-soon",
     accent: "achievements",
   },

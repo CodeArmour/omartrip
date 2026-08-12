@@ -59,7 +59,14 @@ export function FloatingNavigation() {
 
     setActiveSection(id);
     setMobileMenuOpen(false);
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    const targetTop =
+      id === "home"
+        ? 0
+        : Math.max(
+            0,
+            window.scrollY + section.getBoundingClientRect().top - 16,
+          );
+    window.scrollTo({ top: targetTop, behavior: "smooth" });
     window.history.pushState(null, "", `#${id}`);
   };
 

@@ -16,6 +16,8 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { SiGithub } from "react-icons/si";
 
+import { Skeleton } from "@/components/ui/Skeleton";
+
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8081";
 const MAX_LENGTH = 280;
 type AuthProvider = { id: string; authorizationUrl: string };
@@ -328,8 +330,24 @@ export function GuestbookExperience() {
       <section
         className="guestbook-auth-panel guestbook-enter guestbook-enter-panel"
         aria-labelledby="guestbook-auth-title"
+        data-scroll-reveal
       >
-        {auth.authenticated ? (
+        {loading ? (
+          <div
+            className="guestbook-auth-skeleton"
+            role="status"
+            aria-live="polite"
+            aria-label="Loading guestbook authentication"
+          >
+            <Skeleton className="skeleton-avatar" />
+            <Skeleton className="skeleton-line skeleton-line-title" />
+            <Skeleton className="skeleton-line skeleton-line-wide" />
+            <div className="guestbook-auth-skeleton-actions">
+              <Skeleton className="skeleton-pill" />
+              <Skeleton className="skeleton-pill" />
+            </div>
+          </div>
+        ) : auth.authenticated ? (
           <div className="guestbook-composer-layout">
             <div className="guestbook-signed-user">
               <Avatar
@@ -441,6 +459,7 @@ export function GuestbookExperience() {
         <section
           className="guestbook-review-panel"
           aria-labelledby="guestbook-review-title"
+          data-scroll-reveal
         >
           <div className="guestbook-wall-heading guestbook-review-heading">
             <div>
@@ -524,6 +543,7 @@ export function GuestbookExperience() {
       <section
         className="guestbook-wall"
         aria-labelledby="guestbook-wall-title"
+        data-scroll-reveal
       >
         <div className="guestbook-wall-heading">
           <div>
@@ -540,7 +560,11 @@ export function GuestbookExperience() {
         ) : (
           <div className="guestbook-message-list">
             {messages.map((message) => (
-              <article className="guestbook-message-card" key={message.id}>
+              <article
+                className="guestbook-message-card"
+                key={message.id}
+                data-scroll-reveal
+              >
                 <Avatar
                   name={message.user.displayName}
                   url={message.user.avatarUrl}

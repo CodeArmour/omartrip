@@ -16,6 +16,8 @@ export function ProjectCard({
   return (
     <article
       className="project-entry"
+      data-scroll-reveal
+      data-scroll-delay={index + 1}
       style={{ "--project-index": index } as React.CSSProperties}
     >
       <header className="project-entry-heading">

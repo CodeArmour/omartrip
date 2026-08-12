@@ -8,6 +8,7 @@ import {
   usePortfolioAuth,
 } from "@/components/auth/PortfolioAuthProvider";
 import { LusterTitle } from "@/components/ui/LusterTitle";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 
 import { SkillOwnerEditor, type SkillInput } from "./SkillOwnerEditor";
 import { SkillOwnerList } from "./SkillOwnerList";
@@ -24,6 +25,7 @@ export function SkillsSection() {
   const [skillItems, setSkillItems] = useState<Skill[]>(fallbackSkills);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
 
@@ -41,6 +43,8 @@ export function SkillsSection() {
       setFeedback(
         session.admin ? "Skill management is temporarily unavailable." : "",
       );
+    } finally {
+      setLoading(false);
     }
   }, [session.admin]);
 
@@ -138,8 +142,9 @@ export function SkillsSection() {
       id="skills"
       className="skills-section anchor-section"
       aria-labelledby="skills-title"
+      data-scroll-reveal
     >
-      <header className="skills-heading">
+      <header className="skills-heading" data-scroll-reveal>
         <p className="eyebrow">Tech Stack</p>
         <LusterTitle id="skills-title">My Skills</LusterTitle>
         <p>
@@ -149,7 +154,7 @@ export function SkillsSection() {
       </header>
 
       {session.admin ? (
-        <div className="skills-owner-bar">
+        <div className="skills-owner-bar" data-scroll-reveal>
           <span>
             <Settings2 aria-hidden="true" /> Owner skill manager
           </span>
@@ -185,7 +190,18 @@ export function SkillsSection() {
         />
       ) : null}
 
-      {session.admin ? (
+      {session.admin && loading ? (
+        <div className="skills-owner-skeleton-grid" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <SkeletonCard
+              className="skill-owner-skeleton-card"
+              key={`skill-skeleton-${index}`}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {session.admin && !loading ? (
         <SkillOwnerList
           skills={skillItems}
           busy={busy}
@@ -208,7 +224,9 @@ export function SkillsSection() {
         />
       ) : null}
 
-      <SkillSphere skills={skillItems} />
+      <div data-scroll-reveal data-scroll-delay="2">
+        <SkillSphere skills={skillItems} />
+      </div>
     </section>
   );
 }

@@ -1,0 +1,2 @@
+ALTER TABLE blog_posts
+    ADD COLUMN share_count BIGINT NOT NULL DEFAULT 0;

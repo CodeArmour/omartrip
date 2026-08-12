@@ -8,6 +8,7 @@ import {
   usePortfolioAuth,
 } from "@/components/auth/PortfolioAuthProvider";
 import { LusterTitle } from "@/components/ui/LusterTitle";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 import { contactDetails } from "@/config/contact";
 
 import { ProjectCard } from "./ProjectCard";
@@ -40,6 +41,7 @@ export function ProjectsSection() {
   const [projectItems, setProjectItems] = useState<Project[]>(fallbackProjects);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState("");
 
@@ -59,6 +61,8 @@ export function ProjectsSection() {
       setFeedback(
         session.admin ? "Project management is temporarily unavailable." : "",
       );
+    } finally {
+      setLoading(false);
     }
   }, [session.admin]);
 
@@ -207,8 +211,10 @@ export function ProjectsSection() {
       id="projects"
       className="projects-section anchor-section"
       aria-labelledby="projects-title"
+      data-scroll-reveal
+      data-scroll-progress="projects"
     >
-      <header className="projects-heading">
+      <header className="projects-heading" data-scroll-reveal>
         <p className="eyebrow">Portfolio</p>
         <LusterTitle id="projects-title">Featured Projects</LusterTitle>
         <p>
@@ -218,7 +224,7 @@ export function ProjectsSection() {
       </header>
 
       {session.admin ? (
-        <div className="projects-owner-bar">
+        <div className="projects-owner-bar" data-scroll-reveal>
           <span>
             <Settings2 aria-hidden="true" /> Owner project manager
           </span>
@@ -254,41 +260,53 @@ export function ProjectsSection() {
         />
       ) : null}
 
-      <div className="projects-grid">
-        {projectItems.map((project, index) => (
-          <ProjectCard
-            key={project.id ?? project.number}
-            project={project}
-            index={index}
-            ownerControls={
-              session.admin && project.id ? (
-                <ProjectOwnerControls
-                  project={project}
-                  index={index}
-                  total={projectItems.length}
-                  busy={busy}
-                  onEdit={() => {
-                    setEditingProject(project);
-                    setEditorOpen(true);
-                  }}
-                  onMove={(offset) => void moveProject(index, offset)}
-                  onPublication={() =>
-                    void ownerRequest(
-                      `/api/v1/projects/admin/${project.id}/publication?published=${project.published === false}`,
-                      { method: "PATCH" },
-                    )
-                  }
-                  onCopyReviewLink={() => void copyReviewLink(project)}
-                  onDelete={() =>
-                    void ownerRequest(`/api/v1/projects/admin/${project.id}`, {
-                      method: "DELETE",
-                    })
-                  }
-                />
-              ) : undefined
-            }
-          />
-        ))}
+      <div className="projects-grid" aria-busy={loading}>
+        {loading && session.admin
+          ? Array.from({ length: 2 }).map((_, index) => (
+              <SkeletonCard
+                className="project-skeleton-card"
+                key={`project-skeleton-${index}`}
+              />
+            ))
+          : null}
+        {(!loading || !session.admin) &&
+          projectItems.map((project, index) => (
+            <ProjectCard
+              key={project.id ?? project.number}
+              project={project}
+              index={index}
+              ownerControls={
+                session.admin && project.id ? (
+                  <ProjectOwnerControls
+                    project={project}
+                    index={index}
+                    total={projectItems.length}
+                    busy={busy}
+                    onEdit={() => {
+                      setEditingProject(project);
+                      setEditorOpen(true);
+                    }}
+                    onMove={(offset) => void moveProject(index, offset)}
+                    onPublication={() =>
+                      void ownerRequest(
+                        `/api/v1/projects/admin/${project.id}/publication?published=${project.published === false}`,
+                        { method: "PATCH" },
+                      )
+                    }
+                    onCopyReviewLink={() => void copyReviewLink(project)}
+                    onDelete={() =>
+                      void ownerRequest(
+                        `/api/v1/projects/admin/${project.id}`,
+                        {
+                          method: "DELETE",
+                        },
+                      )
+                    }
+                  />
+                ) : undefined
+              }
+            />
+          ))}
       </div>
 
       <a

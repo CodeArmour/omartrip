@@ -3,7 +3,9 @@ export const navigationItems = [
   { label: "About", id: "about" },
   { label: "Projects", id: "projects" },
   { label: "Skills", id: "skills" },
+  { label: "Blog", id: "blog" },
   { label: "Other", id: "other" },
 ] as const;
 
-export type NavigationId = (typeof navigationItems)[number]["id"];
+export type NavigationItem = (typeof navigationItems)[number];
+export type NavigationId = NavigationItem["id"];

@@ -5,6 +5,7 @@ import {
   ChevronDown,
   LogIn,
   LogOut,
+  Loader2,
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +16,8 @@ import { SiGithub } from "react-icons/si";
 import { usePortfolioAuth } from "./PortfolioAuthProvider";
 
 export function PortfolioAccountControl() {
-  const { session, providers, loading, signIn, signOut } = usePortfolioAuth();
+  const { session, providers, loading, providersLoading, signIn, signOut } =
+    usePortfolioAuth();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +38,19 @@ export function PortfolioAccountControl() {
   }, [open]);
 
   if (loading)
-    return <span className="nav-account-placeholder" aria-hidden="true" />;
+    return (
+      <div className="nav-account" ref={rootRef}>
+        <button
+          type="button"
+          className="nav-control nav-account-control is-loading"
+          aria-label="Checking sign-in status"
+          disabled
+        >
+          <Loader2 aria-hidden="true" className="nav-account-spinner" />
+          <span className="nav-account-label">Checking</span>
+        </button>
+      </div>
+    );
 
   return (
     <div className="nav-account" ref={rootRef}>
@@ -101,6 +115,12 @@ export function PortfolioAccountControl() {
                 <strong>Welcome</strong>
                 <span>Sign in to join the guestbook.</span>
               </div>
+              {providersLoading ? (
+                <p className="nav-account-loading">Loading sign-in options…</p>
+              ) : null}
+              {!providersLoading && providers.length === 0 ? (
+                <p>Sign-in providers are unavailable.</p>
+              ) : null}
               {providers.map((provider) => (
                 <button
                   key={provider.id}
@@ -116,9 +136,6 @@ export function PortfolioAccountControl() {
                   Continue with {provider.id === "github" ? "GitHub" : "Google"}
                 </button>
               ))}
-              {providers.length === 0 ? (
-                <p>Sign-in providers are unavailable.</p>
-              ) : null}
             </>
           )}
           {session.admin ? (

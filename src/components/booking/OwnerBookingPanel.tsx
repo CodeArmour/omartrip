@@ -15,6 +15,7 @@ import {
   portfolioApiUrl,
   usePortfolioAuth,
 } from "@/components/auth/PortfolioAuthProvider";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type OwnerBooking = {
   id: string;
@@ -135,6 +136,7 @@ export function OwnerBookingPanel({ status }: OwnerBookingPanelProps) {
       id={sectionId}
       className={`owner-bookings owner-bookings-${status.toLowerCase()}`}
       aria-labelledby={`${sectionId}-title`}
+      data-scroll-reveal
     >
       <header className="owner-bookings-header">
         <div>
@@ -183,10 +185,29 @@ export function OwnerBookingPanel({ status }: OwnerBookingPanelProps) {
         </p>
       ) : null}
       {loading ? (
-        <p className="owner-bookings-state" role="status">
-          <LoaderCircle className="is-spinning" aria-hidden="true" /> Loading
-          bookings…
-        </p>
+        <>
+          <div className="owner-booking-list" aria-hidden="true">
+            {Array.from({ length: isPending ? 2 : 1 }).map((_, index) => (
+              <article
+                className="owner-booking-card owner-booking-skeleton-card"
+                key={`${status}-booking-skeleton-${index}`}
+              >
+                <Skeleton className="skeleton-pill skeleton-pill-small" />
+                <Skeleton className="skeleton-line skeleton-line-title" />
+                <Skeleton className="skeleton-line skeleton-line-wide" />
+                <Skeleton className="skeleton-line" />
+                <div className="skeleton-card-footer">
+                  <Skeleton className="skeleton-pill" />
+                  <Skeleton className="skeleton-pill skeleton-pill-small" />
+                </div>
+              </article>
+            ))}
+          </div>
+          <p className="owner-bookings-state" role="status">
+            <LoaderCircle className="is-spinning" aria-hidden="true" /> Loading
+            bookings…
+          </p>
+        </>
       ) : bookings.length === 0 ? (
         <p className="owner-bookings-state">
           {isPending
@@ -196,7 +217,11 @@ export function OwnerBookingPanel({ status }: OwnerBookingPanelProps) {
       ) : (
         <div className="owner-booking-list">
           {bookings.map((booking) => (
-            <article className="owner-booking-card" key={booking.id}>
+            <article
+              className="owner-booking-card"
+              key={booking.id}
+              data-scroll-reveal
+            >
               <span className="owner-booking-status">
                 {isPending ? "Needs review" : "Confirmed"}
               </span>

@@ -65,6 +65,8 @@ export function ExploreCard({ item, index }: ExploreCardProps) {
 
   const sharedProps = {
     className: `explore-card explore-card-${item.accent} explore-card-${item.status}`,
+    "data-scroll-reveal": true,
+    "data-scroll-delay": index + 1,
     style: { "--explore-index": index } as React.CSSProperties,
   };
 

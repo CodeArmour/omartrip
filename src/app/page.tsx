@@ -1,5 +1,6 @@
 import { DotGridBackground } from "@/components/background/DotGridBackground";
 import { AboutSection } from "@/components/about/AboutSection";
+import { BlogPreviewSection } from "@/components/blog/BlogPreviewSection";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { FloatingNavigation } from "@/components/navigation/FloatingNavigation";
@@ -22,6 +23,8 @@ export default function Home() {
           <ProjectsSection />
 
           <SkillsSection />
+
+          <BlogPreviewSection />
 
           <MoreToExploreSection />
         </main>

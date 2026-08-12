@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ContactDialogProvider } from "@/components/contact-dialog/ContactDialogProvider";
 import { PortfolioAuthProvider } from "@/components/auth/PortfolioAuthProvider";
 import { PortfolioProfileProvider } from "@/components/profile/PortfolioProfileProvider";
+import { ScrollRevealController } from "@/components/ui/ScrollRevealController";
 import { ThemeBootstrap } from "@/components/theme/ThemeBootstrap";
 
 import "./globals.css";
@@ -21,6 +22,7 @@ export default function RootLayout({
       <head />
       <body>
         <ThemeBootstrap />
+        <ScrollRevealController />
         <PortfolioAuthProvider>
           <PortfolioProfileProvider>
             <ContactDialogProvider>{children}</ContactDialogProvider>
