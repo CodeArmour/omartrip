@@ -45,6 +45,10 @@ public class CloudinaryProjectImageService {
         return upload(file, properties.safeProfileFolder());
     }
 
+    public ProjectImageUploadResponse uploadBlog(MultipartFile file) {
+        return upload(file, properties.safeBlogFolder());
+    }
+
     private ProjectImageUploadResponse upload(MultipartFile file, String folder) {
         validate(file);
         if (!properties.configured()) {

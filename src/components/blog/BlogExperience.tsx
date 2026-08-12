@@ -12,15 +12,18 @@ import {
   Send,
   Share2,
   Trash2,
+  Upload,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   FormEvent,
   ReactNode,
+  ChangeEvent,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { FcGoogle } from "react-icons/fc";
@@ -75,6 +78,13 @@ type BlogPostInput = {
   attachmentLabel: string;
   attachmentUrl: string;
   published: boolean;
+};
+
+type BlogImageUpload = {
+  secureUrl: string;
+  publicId: string;
+  width: number;
+  height: number;
 };
 
 type BlogExperienceProps = {
@@ -205,15 +215,67 @@ function RichArticle({ content }: { content: string }) {
   return <article className="blog-article-body">{nodes}</article>;
 }
 
+function BlogIndexSkeleton() {
+  return (
+    <div className="blog-index-grid" aria-label="Loading blog articles">
+      {Array.from({ length: 2 }, (_, index) => (
+        <article className="blog-index-card blog-index-skeleton" key={index}>
+          <span className="skeleton skeleton-media" />
+          <div className="blog-index-card-header">
+            <span className="skeleton skeleton-line skeleton-line-short" />
+            <span className="skeleton skeleton-line skeleton-line-title" />
+          </div>
+          <div className="skeleton-card-copy">
+            <span className="skeleton skeleton-line skeleton-line-wide" />
+            <span className="skeleton skeleton-line" />
+            <span className="skeleton skeleton-line skeleton-line-short" />
+          </div>
+          <footer className="blog-card-meta">
+            <span className="skeleton skeleton-pill skeleton-pill-small" />
+            <span className="skeleton skeleton-pill skeleton-pill-small" />
+          </footer>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function BlogArticleSkeleton() {
+  return (
+    <article
+      className="blog-article blog-article-skeleton"
+      aria-label="Loading article"
+    >
+      <header>
+        <span className="skeleton skeleton-line skeleton-line-short" />
+        <span className="skeleton skeleton-line skeleton-line-title" />
+        <span className="skeleton skeleton-line skeleton-line-wide" />
+        <span className="skeleton skeleton-line" />
+      </header>
+      <span className="skeleton skeleton-media blog-article-skeleton-image" />
+      <div className="blog-article-body">
+        <span className="skeleton skeleton-line skeleton-line-wide" />
+        <span className="skeleton skeleton-line skeleton-line-wide" />
+        <span className="skeleton skeleton-line" />
+        <span className="skeleton skeleton-line skeleton-line-short" />
+      </div>
+    </article>
+  );
+}
+
 export function BlogExperience({
   initialSlug,
   mode = "index",
 }: BlogExperienceProps) {
   const { session, providers, signIn, csrfHeaders } = usePortfolioAuth();
+  const editorRef = useRef<HTMLFormElement | null>(null);
+  const editorTitleRef = useRef<HTMLInputElement | null>(null);
   const [posts, setPosts] = useState<BlogPostSummary[]>([]);
   const [activePost, setActivePost] = useState<BlogPostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
   const [comment, setComment] = useState("");
   const [editing, setEditing] = useState<BlogPostDetail | null>(null);
   const [draft, setDraft] = useState<BlogPostInput>(blankPost);
@@ -404,8 +466,21 @@ export function BlogExperience({
     return content.length > 220 || content.split("\n").length > 4;
   }
 
+  function focusEditor() {
+    window.setTimeout(() => {
+      editorRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      editorTitleRef.current?.focus({ preventScroll: true });
+    }, 40);
+  }
+
   function openEditor(post?: BlogPostDetail) {
     setEditing(post ?? null);
+    setImageUploadError("");
     setDraft(
       post
         ? {
@@ -421,6 +496,41 @@ export function BlogExperience({
         : blankPost,
     );
     setEditorOpen(true);
+    focusEditor();
+  }
+
+  async function uploadArticleImage(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    setImageUploadError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch(
+        `${portfolioApiUrl}/api/v1/blog/admin/images`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: await csrfHeaders(),
+          body,
+        },
+      );
+      if (!response.ok)
+        throw new Error("The article image could not be uploaded.");
+      const uploaded = (await response.json()) as BlogImageUpload;
+      setDraft((current) => ({
+        ...current,
+        imageUrl: uploaded.secureUrl,
+        imageAlt: current.imageAlt || current.title,
+      }));
+      setFeedback("Article image uploaded.");
+    } catch {
+      setImageUploadError("The article image could not be uploaded.");
+    } finally {
+      setUploadingImage(false);
+      event.target.value = "";
+    }
   }
 
   async function savePost(event: FormEvent<HTMLFormElement>) {
@@ -462,10 +572,15 @@ export function BlogExperience({
   }
 
   const editor = editorOpen ? (
-    <form className="blog-editor" onSubmit={(event) => void savePost(event)}>
+    <form
+      className="blog-editor"
+      ref={editorRef}
+      onSubmit={(event) => void savePost(event)}
+    >
       <label>
         Title
         <input
+          ref={editorTitleRef}
           required
           maxLength={180}
           value={draft.title}
@@ -485,15 +600,47 @@ export function BlogExperience({
           }
         />
       </label>
-      <label>
-        Article image URL
-        <input
-          value={draft.imageUrl}
-          onChange={(event) =>
-            setDraft({ ...draft, imageUrl: event.target.value })
-          }
-        />
-      </label>
+      <div className="blog-editor-upload">
+        <label>
+          Article image
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            onChange={(event) => void uploadArticleImage(event)}
+            disabled={uploadingImage || busy}
+          />
+        </label>
+        <div className="blog-editor-upload-status" aria-live="polite">
+          {uploadingImage ? (
+            <span>
+              <LoaderCircle className="is-spinning" aria-hidden="true" />
+              Uploading to Cloudinary...
+            </span>
+          ) : draft.imageUrl ? (
+            <span>
+              <Upload aria-hidden="true" />
+              Image ready
+            </span>
+          ) : (
+            <span>Choose an article cover image.</span>
+          )}
+          {imageUploadError ? (
+            <span className="is-error" role="alert">
+              {imageUploadError}
+            </span>
+          ) : null}
+        </div>
+        {draft.imageUrl ? (
+          <div className="blog-editor-image-preview">
+            <Image
+              src={draft.imageUrl}
+              alt={draft.imageAlt || draft.title || "Uploaded article image"}
+              fill
+              sizes="(max-width: 900px) calc(100vw - 2rem), 420px"
+            />
+          </div>
+        ) : null}
+      </div>
       <label>
         Image alt text
         <input
@@ -549,7 +696,7 @@ export function BlogExperience({
         <button type="button" onClick={() => setEditorOpen(false)}>
           Cancel
         </button>
-        <button type="submit" disabled={busy}>
+        <button type="submit" disabled={busy || uploadingImage}>
           {busy ? "Saving..." : "Save article"}
         </button>
       </div>
@@ -570,10 +717,7 @@ export function BlogExperience({
         {feedback ? <p className="blog-feedback">{feedback}</p> : null}
         {editor}
         {loading ? (
-          <p className="blog-feedback">
-            <LoaderCircle className="is-spinning" aria-hidden="true" /> Loading
-            articles
-          </p>
+          <BlogIndexSkeleton />
         ) : posts.length === 0 ? (
           <div className="blog-empty">
             <h2>No articles yet.</h2>
@@ -659,7 +803,9 @@ export function BlogExperience({
         {feedback ? <p className="blog-feedback">{feedback}</p> : null}
         {editor}
 
-        {activePost ? (
+        {loading ? (
+          <BlogArticleSkeleton />
+        ) : activePost ? (
           <article className="blog-article" id={`article-${activePost.slug}`}>
             <header>
               <p className="eyebrow">

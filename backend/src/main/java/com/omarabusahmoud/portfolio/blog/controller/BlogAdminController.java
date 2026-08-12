@@ -27,7 +27,9 @@ public class BlogAdminController {
     private final BlogService blog;
     private final PortfolioAuthorizationService authorization;
 
-    public BlogAdminController(BlogService blog, PortfolioAuthorizationService authorization) {
+    public BlogAdminController(
+            BlogService blog,
+            PortfolioAuthorizationService authorization) {
         this.blog = blog;
         this.authorization = authorization;
     }

@@ -9,7 +9,8 @@ public record CloudinaryProperties(
         String apiSecret,
         String folder,
         String skillFolder,
-        String profileFolder) {
+        String profileFolder,
+        String blogFolder) {
     public boolean configured() {
         return hasText(cloudName) && hasText(apiKey) && hasText(apiSecret);
     }
@@ -22,6 +23,9 @@ public record CloudinaryProperties(
     }
     public String safeProfileFolder() {
         return hasText(profileFolder) ? profileFolder.trim() : "omar-portfolio/profile";
+    }
+    public String safeBlogFolder() {
+        return hasText(blogFolder) ? blogFolder.trim() : "omar-portfolio/blog";
     }
 
     private boolean hasText(String value) { return value != null && !value.isBlank(); }

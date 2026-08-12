@@ -5969,6 +5969,12 @@ h2 {
   padding: 0 0.8rem;
 }
 
+.blog-editor input[type="file"] {
+  min-height: auto;
+  padding: 0.72rem 0.8rem;
+  cursor: pointer;
+}
+
 .blog-editor textarea,
 .blog-comments textarea {
   min-height: 92px;
@@ -5983,6 +5989,63 @@ h2 {
 
 .blog-editor-full textarea {
   min-height: 300px;
+}
+
+.blog-editor-upload {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.blog-editor-upload-status {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.blog-editor-upload-status span {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.blog-editor-upload-status svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--warm-lime);
+}
+
+.blog-editor-upload-status .is-error {
+  color: #ffb4a8;
+}
+
+.blog-editor-image-preview {
+  position: relative;
+  min-height: 150px;
+  overflow: hidden;
+  border: 1px solid rgba(207, 255, 116, 0.16);
+  border-radius: 18px;
+  background: rgba(11, 15, 7, 0.22);
+}
+
+.blog-editor-image-preview img {
+  object-fit: cover;
+}
+
+.blog-index-skeleton {
+  pointer-events: none;
+}
+
+.blog-index-skeleton .skeleton-card-copy {
+  align-self: start;
+}
+
+.blog-article-skeleton {
+  pointer-events: none;
+}
+
+.blog-article-skeleton-image {
+  min-height: clamp(260px, 42vw, 480px);
 }
 
 .blog-editor-check {

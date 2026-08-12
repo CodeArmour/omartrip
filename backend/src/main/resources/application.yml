@@ -96,6 +96,7 @@ portfolio:
     folder: ${CLOUDINARY_PROJECT_FOLDER:omar-portfolio/projects}
     skill-folder: ${CLOUDINARY_SKILL_FOLDER:omar-portfolio/skills}
     profile-folder: ${CLOUDINARY_PROFILE_FOLDER:omar-portfolio/profile}
+    blog-folder: ${CLOUDINARY_BLOG_FOLDER:omar-portfolio/blog}
   workspace:
     google:
       email: ${GOOGLE_WORKSPACE_EMAIL:hello@omarcode.dev}
