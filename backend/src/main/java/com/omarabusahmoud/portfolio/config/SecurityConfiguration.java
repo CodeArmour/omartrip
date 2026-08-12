@@ -23,13 +23,16 @@ public class SecurityConfiguration {
             PortfolioAuthenticationSuccessHandler successHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/api/v1/bookings/**", "/api/v1/contact-inquiries", "/api/v1/assistant/**"))
+                        "/api/v1/bookings/**",
+                        "/api/v1/contact-inquiries",
+                        "/api/v1/assistant/**",
+                        "/api/v1/blog/posts/*/shares"))
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/v1/bookings/admin/**").authenticated()
                         .requestMatchers("/api/v1/projects/admin/**").authenticated()
-.requestMatchers("/api/v1/skills/admin/**").authenticated()
-.requestMatchers("/api/v1/profile/admin").authenticated()
+                        .requestMatchers("/api/v1/skills/admin/**").authenticated()
+                        .requestMatchers("/api/v1/profile/admin").authenticated()
                         .requestMatchers("/api/v1/blog/admin/**").authenticated()
                         .requestMatchers(
                                 "/api/v1/health",
@@ -44,10 +47,11 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/guestbook/messages").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects").permitAll()
-.requestMatchers(HttpMethod.GET, "/api/v1/skills").permitAll()
-.requestMatchers(HttpMethod.GET, "/api/v1/profile").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/skills").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/profile").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/blog/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/blog/posts/*/shares").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/reviews/**").authenticated()
                         .requestMatchers("/api/v1/blog/**").authenticated()
                         .requestMatchers("/api/v1/guestbook/**").authenticated()
