@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChevronDown,
   Copy,
   Download,
   ExternalLink,
@@ -13,6 +14,7 @@ import {
   Share2,
   Trash2,
   Upload,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,6 +107,8 @@ const blankPost: BlogPostInput = {
 
 const MAX_ARTICLE_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_ARTICLE_IMAGE_MB = MAX_ARTICLE_IMAGE_BYTES / 1024 / 1024;
+const MAX_ARTICLE_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+const MAX_ARTICLE_ATTACHMENT_MB = MAX_ARTICLE_ATTACHMENT_BYTES / 1024 / 1024;
 
 async function readJson<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as T | null;
@@ -279,11 +283,15 @@ export function BlogExperience({
   const [busy, setBusy] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [attachmentUploadError, setAttachmentUploadError] = useState("");
   const [comment, setComment] = useState("");
   const [editing, setEditing] = useState<BlogPostDetail | null>(null);
   const [draft, setDraft] = useState<BlogPostInput>(blankPost);
   const [editorOpen, setEditorOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [articleMenuOpen, setArticleMenuOpen] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(
     () => new Set(),
   );
@@ -295,6 +303,8 @@ export function BlogExperience({
         cache: "no-store",
       }),
     );
+    setCommentsOpen(false);
+    setArticleMenuOpen(false);
     setActivePost(detail);
   }, []);
 
@@ -329,6 +339,18 @@ export function BlogExperience({
     () => posts.findIndex((post) => post.id === activePost?.id),
     [activePost?.id, posts],
   );
+
+  useEffect(() => {
+    if (!commentsOpen && !articleMenuOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setCommentsOpen(false);
+      if (event.key === "Escape") setArticleMenuOpen(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [articleMenuOpen, commentsOpen]);
 
   async function authenticatedRequest<T>(path: string, init: RequestInit) {
     return readJson<T>(
@@ -419,6 +441,7 @@ export function BlogExperience({
         commentCount: activePost.commentCount + 1,
       });
       setComment("");
+      setCommentsOpen(true);
     } finally {
       setBusy(false);
     }
@@ -484,6 +507,7 @@ export function BlogExperience({
   function openEditor(post?: BlogPostDetail) {
     setEditing(post ?? null);
     setImageUploadError("");
+    setAttachmentUploadError("");
     setDraft(
       post
         ? {
@@ -553,6 +577,58 @@ export function BlogExperience({
     }
   }
 
+  async function uploadArticleAttachment(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_ARTICLE_ATTACHMENT_BYTES) {
+      setAttachmentUploadError(
+        `This file is too large. Please upload a file smaller than ${MAX_ARTICLE_ATTACHMENT_MB} MB.`,
+      );
+      event.target.value = "";
+      return;
+    }
+
+    setUploadingAttachment(true);
+    setAttachmentUploadError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch(
+        `${portfolioApiUrl}/api/v1/blog/admin/attachments`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: await csrfHeaders(),
+          body,
+        },
+      );
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error(
+            `This file is too large. Please upload a file smaller than ${MAX_ARTICLE_ATTACHMENT_MB} MB.`,
+          );
+        }
+        throw new Error("The attachment could not be uploaded.");
+      }
+      const uploaded = (await response.json()) as BlogImageUpload;
+      setDraft((current) => ({
+        ...current,
+        attachmentUrl: uploaded.secureUrl,
+        attachmentLabel: current.attachmentLabel || file.name,
+      }));
+      setFeedback("Attachment uploaded.");
+    } catch (reason) {
+      setAttachmentUploadError(
+        reason instanceof Error
+          ? reason.message
+          : "The attachment could not be uploaded.",
+      );
+    } finally {
+      setUploadingAttachment(false);
+      event.target.value = "";
+    }
+  }
+
   async function savePost(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -597,126 +673,201 @@ export function BlogExperience({
       ref={editorRef}
       onSubmit={(event) => void savePost(event)}
     >
-      <label>
-        Title
-        <input
-          ref={editorTitleRef}
-          required
-          maxLength={180}
-          value={draft.title}
-          onChange={(event) =>
-            setDraft({ ...draft, title: event.target.value })
-          }
-        />
-      </label>
-      <label>
-        Excerpt
-        <textarea
-          required
-          maxLength={360}
-          value={draft.excerpt}
-          onChange={(event) =>
-            setDraft({ ...draft, excerpt: event.target.value })
-          }
-        />
-      </label>
-      <div className="blog-editor-upload">
-        <label>
-          Article image
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/avif"
-            onChange={(event) => void uploadArticleImage(event)}
-            disabled={uploadingImage || busy}
+      <section className="blog-editor-section blog-editor-basics">
+        <header>
+          <h3>{editing ? "Edit article" : "Add article"}</h3>
+          <p>Set the title, summary, and publishing state.</p>
+        </header>
+        <div className="blog-editor-fields">
+          <label>
+            Title
+            <input
+              ref={editorTitleRef}
+              required
+              maxLength={180}
+              value={draft.title}
+              onChange={(event) =>
+                setDraft({ ...draft, title: event.target.value })
+              }
+            />
+          </label>
+          <label className="blog-editor-check">
+            <input
+              type="checkbox"
+              checked={draft.published}
+              onChange={(event) =>
+                setDraft({ ...draft, published: event.target.checked })
+              }
+            />
+            Published
+          </label>
+          <label className="blog-editor-full">
+            Excerpt
+            <textarea
+              required
+              maxLength={360}
+              value={draft.excerpt}
+              onChange={(event) =>
+                setDraft({ ...draft, excerpt: event.target.value })
+              }
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="blog-editor-section blog-editor-media">
+        <header>
+          <h3>Media</h3>
+          <p>Upload a cover image and optional downloadable attachment.</p>
+        </header>
+        <div className="blog-editor-media-grid">
+          <div className="blog-editor-upload blog-editor-upload-card">
+            <label>
+              Article image
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={(event) => void uploadArticleImage(event)}
+                disabled={uploadingImage || busy}
+              />
+            </label>
+            <div className="blog-editor-upload-status" aria-live="polite">
+              {uploadingImage ? (
+                <span>
+                  <LoaderCircle className="is-spinning" aria-hidden="true" />
+                  Uploading to Cloudinary...
+                </span>
+              ) : draft.imageUrl ? (
+                <span>
+                  <Upload aria-hidden="true" />
+                  Image ready
+                </span>
+              ) : (
+                <span>
+                  JPEG, PNG, WebP or AVIF up to {MAX_ARTICLE_IMAGE_MB} MB.
+                </span>
+              )}
+              {imageUploadError ? (
+                <span className="is-error" role="alert">
+                  {imageUploadError}
+                </span>
+              ) : null}
+            </div>
+            <div className="blog-editor-image-preview">
+              {draft.imageUrl ? (
+                <Image
+                  src={draft.imageUrl}
+                  alt={
+                    draft.imageAlt || draft.title || "Uploaded article image"
+                  }
+                  fill
+                  sizes="(max-width: 900px) calc(100vw - 2rem), 420px"
+                />
+              ) : (
+                <span>Image preview</span>
+              )}
+            </div>
+          </div>
+
+          <div className="blog-editor-upload blog-editor-upload-card">
+            <label>
+              Attachment file
+              <input
+                type="file"
+                accept=".pdf,.zip,.txt,.md,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv"
+                onChange={(event) => void uploadArticleAttachment(event)}
+                disabled={uploadingAttachment || busy}
+              />
+            </label>
+            <div className="blog-editor-upload-status" aria-live="polite">
+              {uploadingAttachment ? (
+                <span>
+                  <LoaderCircle className="is-spinning" aria-hidden="true" />
+                  Uploading attachment...
+                </span>
+              ) : draft.attachmentUrl ? (
+                <span>
+                  <Download aria-hidden="true" />
+                  Attachment ready
+                </span>
+              ) : (
+                <span>
+                  PDF, docs, spreadsheets, text, CSV or ZIP up to{" "}
+                  {MAX_ARTICLE_ATTACHMENT_MB} MB.
+                </span>
+              )}
+              {attachmentUploadError ? (
+                <span className="is-error" role="alert">
+                  {attachmentUploadError}
+                </span>
+              ) : null}
+            </div>
+            <label>
+              Attachment label
+              <input
+                value={draft.attachmentLabel}
+                placeholder="Download resources"
+                onChange={(event) =>
+                  setDraft({ ...draft, attachmentLabel: event.target.value })
+                }
+              />
+            </label>
+            {draft.attachmentUrl ? (
+              <a
+                className="blog-editor-attachment-preview"
+                href={draft.attachmentUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                <Download aria-hidden="true" />
+                <span>
+                  {draft.attachmentLabel || "View uploaded attachment"}
+                </span>
+              </a>
+            ) : null}
+          </div>
+
+          <label className="blog-editor-full">
+            Image alt text
+            <input
+              value={draft.imageAlt}
+              onChange={(event) =>
+                setDraft({ ...draft, imageAlt: event.target.value })
+              }
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="blog-editor-section blog-editor-content">
+        <header>
+          <h3>Content</h3>
+          <p>Supports headings, bold text, lists, links, and code blocks.</p>
+        </header>
+        <label className="blog-editor-full">
+          Article content
+          <textarea
+            required
+            maxLength={20000}
+            value={draft.content}
+            onChange={(event) =>
+              setDraft({ ...draft, content: event.target.value })
+            }
+            placeholder={
+              "Use ## headings, **bold text**, - lists, [links](https://...), and ```js code blocks ```."
+            }
           />
         </label>
-        <div className="blog-editor-upload-status" aria-live="polite">
-          {uploadingImage ? (
-            <span>
-              <LoaderCircle className="is-spinning" aria-hidden="true" />
-              Uploading to Cloudinary...
-            </span>
-          ) : draft.imageUrl ? (
-            <span>
-              <Upload aria-hidden="true" />
-              Image ready
-            </span>
-          ) : (
-            <span>Choose an article cover image.</span>
-          )}
-          {imageUploadError ? (
-            <span className="is-error" role="alert">
-              {imageUploadError}
-            </span>
-          ) : null}
-        </div>
-        {draft.imageUrl ? (
-          <div className="blog-editor-image-preview">
-            <Image
-              src={draft.imageUrl}
-              alt={draft.imageAlt || draft.title || "Uploaded article image"}
-              fill
-              sizes="(max-width: 900px) calc(100vw - 2rem), 420px"
-            />
-          </div>
-        ) : null}
-      </div>
-      <label>
-        Image alt text
-        <input
-          value={draft.imageAlt}
-          onChange={(event) =>
-            setDraft({ ...draft, imageAlt: event.target.value })
-          }
-        />
-      </label>
-      <label className="blog-editor-full">
-        Content
-        <textarea
-          required
-          maxLength={20000}
-          value={draft.content}
-          onChange={(event) =>
-            setDraft({ ...draft, content: event.target.value })
-          }
-          placeholder={
-            "Use ## headings, **bold text**, - lists, [links](https://...), and ```js code blocks ```."
-          }
-        />
-      </label>
-      <label>
-        Attachment label
-        <input
-          value={draft.attachmentLabel}
-          onChange={(event) =>
-            setDraft({ ...draft, attachmentLabel: event.target.value })
-          }
-        />
-      </label>
-      <label>
-        Attachment URL
-        <input
-          value={draft.attachmentUrl}
-          onChange={(event) =>
-            setDraft({ ...draft, attachmentUrl: event.target.value })
-          }
-        />
-      </label>
-      <label className="blog-editor-check">
-        <input
-          type="checkbox"
-          checked={draft.published}
-          onChange={(event) =>
-            setDraft({ ...draft, published: event.target.checked })
-          }
-        />
-        Published
-      </label>
+      </section>
+
       <div className="blog-editor-actions">
         <button type="button" onClick={() => setEditorOpen(false)}>
           Cancel
         </button>
-        <button type="submit" disabled={busy || uploadingImage}>
+        <button
+          type="submit"
+          disabled={busy || uploadingImage || uploadingAttachment}
+        >
           {busy ? "Saving..." : "Save article"}
         </button>
       </div>
@@ -794,32 +945,53 @@ export function BlogExperience({
       className="blog-layout blog-detail-layout"
       aria-label="Blog article"
     >
-      <aside className="blog-article-nav" aria-label="Articles">
-        <span>Articles</span>
-        {loading ? (
-          <p>
-            <LoaderCircle className="is-spinning" aria-hidden="true" /> Loading
-          </p>
-        ) : posts.length === 0 ? (
-          <p>No articles published yet.</p>
-        ) : (
-          posts.map((post, index) => (
-            <Link
-              key={post.id}
-              className={post.id === activePost?.id ? "is-active" : undefined}
-              href={`/blog/${post.slug}`}
-            >
-              <small>{String(index + 1).padStart(2, "0")}</small>
-              <strong>{post.title}</strong>
-              <em>
-                {post.published ? formattedDate(post.publishedAt) : "Draft"}
-              </em>
-            </Link>
-          ))
-        )}
-      </aside>
-
       <div className="blog-center">
+        <div className="blog-article-picker">
+          <span id="blog-article-picker-label">Articles</span>
+          <button
+            type="button"
+            className="blog-article-picker-button"
+            disabled={loading || posts.length === 0}
+            aria-haspopup="menu"
+            aria-expanded={articleMenuOpen}
+            aria-controls="blog-article-menu"
+            aria-labelledby="blog-article-picker-label"
+            onClick={() => setArticleMenuOpen((open) => !open)}
+          >
+            <span>
+              {loading
+                ? "Loading articles..."
+                : activePost?.title || "Choose an article"}
+            </span>
+            <ChevronDown aria-hidden="true" />
+          </button>
+
+          {articleMenuOpen ? (
+            <nav
+              className="blog-article-picker-menu"
+              id="blog-article-menu"
+              aria-label="Choose article"
+            >
+              {posts.map((post, index) => (
+                <Link
+                  key={post.id}
+                  className={
+                    post.id === activePost?.id ? "is-active" : undefined
+                  }
+                  href={`/blog/${post.slug}`}
+                  onClick={() => setArticleMenuOpen(false)}
+                >
+                  <small>{String(index + 1).padStart(2, "0")}</small>
+                  <strong>{post.title}</strong>
+                  <em>
+                    {post.published ? formattedDate(post.publishedAt) : "Draft"}
+                  </em>
+                </Link>
+              ))}
+            </nav>
+          ) : null}
+        </div>
+
         {feedback ? <p className="blog-feedback">{feedback}</p> : null}
         {editor}
 
@@ -827,18 +999,59 @@ export function BlogExperience({
           <BlogArticleSkeleton />
         ) : activePost ? (
           <article className="blog-article" id={`article-${activePost.slug}`}>
-            <header>
-              <p className="eyebrow">
-                Article{" "}
-                {activeIndex >= 0
-                  ? String(activeIndex + 1).padStart(2, "0")
-                  : "01"}
-              </p>
-              <h2>{activePost.title}</h2>
-              <p>{activePost.excerpt}</p>
-              <time dateTime={activePost.publishedAt ?? activePost.updatedAt}>
-                {formattedDate(activePost.publishedAt ?? activePost.updatedAt)}
-              </time>
+            <header className="blog-article-header">
+              <div className="blog-article-heading">
+                <p className="eyebrow">
+                  Article{" "}
+                  {activeIndex >= 0
+                    ? String(activeIndex + 1).padStart(2, "0")
+                    : "01"}
+                </p>
+                <h2>{activePost.title}</h2>
+                <p>{activePost.excerpt}</p>
+                <time dateTime={activePost.publishedAt ?? activePost.updatedAt}>
+                  {formattedDate(
+                    activePost.publishedAt ?? activePost.updatedAt,
+                  )}
+                </time>
+              </div>
+
+              <div
+                className="blog-action-rail blog-article-actions"
+                aria-label="Article actions"
+              >
+                <button
+                  type="button"
+                  disabled={!session.authenticated || busy}
+                  aria-label={
+                    activePost.likedByViewer
+                      ? "Remove your like from this article"
+                      : "Like this article"
+                  }
+                  aria-pressed={activePost.likedByViewer}
+                  onClick={() => void togglePostLike()}
+                >
+                  <Heart aria-hidden="true" />
+                  <strong>{activePost.likeCount}</strong>
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void shareArticle()}
+                >
+                  <Share2 aria-hidden="true" />
+                  <strong>{activePost.shareCount}</strong>
+                </button>
+                <button
+                  type="button"
+                  aria-expanded={commentsOpen}
+                  aria-controls="blog-comments-window"
+                  onClick={() => setCommentsOpen(true)}
+                >
+                  <MessageSquareText aria-hidden="true" />
+                  <strong>{activePost.comments.length}</strong>
+                </button>
+              </div>
             </header>
 
             {activePost.imageUrl ? (
@@ -847,7 +1060,7 @@ export function BlogExperience({
                   src={activePost.imageUrl}
                   alt={activePost.imageAlt || activePost.title}
                   fill
-                  sizes="(max-width: 900px) calc(100vw - 2rem), 780px"
+                  sizes="(max-width: 900px) calc(100vw - 2rem), 920px"
                 />
               </div>
             ) : null}
@@ -887,149 +1100,150 @@ export function BlogExperience({
         )}
       </div>
 
-      <aside className="blog-comments-panel" aria-label="Article comments">
-        <div className="blog-action-rail" aria-label="Article actions">
+      {activePost && commentsOpen ? (
+        <div className="blog-comments-layer">
           <button
             type="button"
-            disabled={!activePost || !session.authenticated || busy}
-            aria-pressed={activePost?.likedByViewer ?? false}
-            onClick={() => void togglePostLike()}
+            className="blog-comments-backdrop"
+            aria-label="Close comments"
+            onClick={() => setCommentsOpen(false)}
+          />
+          <aside
+            className="blog-comments-window"
+            id="blog-comments-window"
+            aria-label="Article comments"
           >
-            <Heart aria-hidden="true" />
-            <strong>{activePost?.likeCount ?? 0}</strong>
-            <span>Likes</span>
-          </button>
-          <button
-            type="button"
-            disabled={!activePost || busy}
-            onClick={() => void shareArticle()}
-          >
-            <Share2 aria-hidden="true" />
-            <strong>{activePost?.shareCount ?? 0}</strong>
-            <span>Shares</span>
-          </button>
-          <a href="#blog-comments">
-            <MessageSquareText aria-hidden="true" />
-            <strong>{activePost?.comments.length ?? 0}</strong>
-            <span>Comments</span>
-          </a>
-        </div>
-
-        {activePost ? (
-          <section className="blog-comments" id="blog-comments">
-            <header>
-              <h3>Comments</h3>
-              <span>{activePost.comments.length}</span>
-            </header>
-
-            {session.authenticated ? (
-              <form onSubmit={(event) => void submitComment(event)}>
-                <label htmlFor="blog-comment">Add a comment</label>
-                <textarea
-                  id="blog-comment"
-                  value={comment}
-                  maxLength={1000}
-                  placeholder="Share a thought about this article..."
-                  onChange={(event) => setComment(event.target.value)}
-                />
-                <button
-                  type="submit"
-                  disabled={busy || comment.trim().length < 2}
-                >
-                  <Send aria-hidden="true" /> Comment
-                </button>
-              </form>
-            ) : (
-              <div className="blog-signin-box">
-                <p>Sign in to comment or like this article.</p>
+            <section className="blog-comments" id="blog-comments">
+              <header>
                 <div>
-                  {providers.map((provider) => (
-                    <button
-                      type="button"
-                      key={provider.id}
-                      onClick={() => signIn(provider.id)}
-                    >
-                      {provider.id === "github" ? (
-                        <SiGithub aria-hidden="true" />
-                      ) : (
-                        <FcGoogle aria-hidden="true" />
-                      )}
-                      Sign in with{" "}
-                      {provider.id === "github" ? "GitHub" : "Google"}
-                    </button>
-                  ))}
+                  <h3>Comments</h3>
+                  <p>{activePost.title}</p>
                 </div>
-              </div>
-            )}
+                <span>{activePost.comments.length}</span>
+                <button
+                  type="button"
+                  className="blog-comments-close"
+                  aria-label="Close comments"
+                  onClick={() => setCommentsOpen(false)}
+                >
+                  <X aria-hidden="true" />
+                </button>
+              </header>
 
-            <div className="blog-comment-list">
-              {activePost.comments.map((item) => (
-                <article className="blog-comment-card" key={item.id}>
-                  <span
-                    className="blog-comment-avatar"
-                    style={
-                      item.author.avatarUrl
-                        ? { backgroundImage: `url(${item.author.avatarUrl})` }
-                        : undefined
-                    }
+              {session.authenticated ? (
+                <form onSubmit={(event) => void submitComment(event)}>
+                  <label htmlFor="blog-comment">Add a comment</label>
+                  <textarea
+                    id="blog-comment"
+                    value={comment}
+                    maxLength={1000}
+                    placeholder="Share a thought about this article..."
+                    onChange={(event) => setComment(event.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    disabled={busy || comment.trim().length < 2}
                   >
-                    {!item.author.avatarUrl
-                      ? item.author.displayName.slice(0, 1)
-                      : null}
-                  </span>
+                    <Send aria-hidden="true" /> Comment
+                  </button>
+                </form>
+              ) : (
+                <div className="blog-signin-box">
+                  <p>Sign in to comment or like this article.</p>
                   <div>
-                    <header>
-                      <strong>{item.author.displayName}</strong>
-                      <time dateTime={item.createdAt}>
-                        {formattedDate(item.createdAt)}
-                      </time>
-                    </header>
-                    <p
-                      className={
-                        expandedComments.has(item.id)
-                          ? "is-expanded"
+                    {providers.map((provider) => (
+                      <button
+                        type="button"
+                        key={provider.id}
+                        onClick={() => signIn(provider.id)}
+                      >
+                        {provider.id === "github" ? (
+                          <SiGithub aria-hidden="true" />
+                        ) : (
+                          <FcGoogle aria-hidden="true" />
+                        )}
+                        Sign in with{" "}
+                        {provider.id === "github" ? "GitHub" : "Google"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="blog-comment-list">
+                {activePost.comments.map((item) => (
+                  <article className="blog-comment-card" key={item.id}>
+                    <span
+                      className="blog-comment-avatar"
+                      style={
+                        item.author.avatarUrl
+                          ? { backgroundImage: `url(${item.author.avatarUrl})` }
                           : undefined
                       }
                     >
-                      {item.content}
-                    </p>
-                    {shouldShowReadMore(item.content) ? (
-                      <button
-                        type="button"
-                        className="blog-comment-read-more"
-                        aria-expanded={expandedComments.has(item.id)}
-                        onClick={() => toggleCommentExpansion(item.id)}
+                      {!item.author.avatarUrl
+                        ? item.author.displayName.slice(0, 1)
+                        : null}
+                    </span>
+                    <div>
+                      <header>
+                        <strong>{item.author.displayName}</strong>
+                        <time dateTime={item.createdAt}>
+                          {formattedDate(item.createdAt)}
+                        </time>
+                      </header>
+                      <p
+                        className={
+                          expandedComments.has(item.id)
+                            ? "is-expanded"
+                            : undefined
+                        }
                       >
-                        {expandedComments.has(item.id)
-                          ? "Show less"
-                          : "... Read more"}
-                      </button>
-                    ) : null}
-                    <div className="blog-comment-actions">
-                      <button
-                        type="button"
-                        disabled={!session.authenticated}
-                        aria-pressed={item.likedByViewer}
-                        onClick={() => void toggleCommentLike(item.id)}
-                      >
-                        <Heart aria-hidden="true" /> {item.likeCount}
-                      </button>
-                      {(session.admin || item.ownedByViewer) && (
+                        {item.content}
+                      </p>
+                      {shouldShowReadMore(item.content) ? (
                         <button
                           type="button"
-                          onClick={() => void deleteComment(item.id)}
+                          className="blog-comment-read-more"
+                          aria-expanded={expandedComments.has(item.id)}
+                          onClick={() => toggleCommentExpansion(item.id)}
                         >
-                          <Trash2 aria-hidden="true" /> Remove
+                          {expandedComments.has(item.id)
+                            ? "Show less"
+                            : "... Read more"}
                         </button>
-                      )}
+                      ) : null}
+                      <div className="blog-comment-actions">
+                        <button
+                          type="button"
+                          disabled={!session.authenticated}
+                          aria-label={
+                            item.likedByViewer
+                              ? `Remove your like from ${item.author.displayName}'s comment`
+                              : `Like ${item.author.displayName}'s comment`
+                          }
+                          aria-pressed={item.likedByViewer}
+                          onClick={() => void toggleCommentLike(item.id)}
+                        >
+                          <Heart aria-hidden="true" /> {item.likeCount}
+                        </button>
+                        {(session.admin || item.ownedByViewer) && (
+                          <button
+                            type="button"
+                            onClick={() => void deleteComment(item.id)}
+                          >
+                            <Trash2 aria-hidden="true" /> Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </aside>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </aside>
+        </div>
+      ) : null}
     </section>
   );
 }

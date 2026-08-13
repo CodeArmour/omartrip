@@ -22,8 +22,9 @@ export const metadata: Metadata = {
   creator: "Omar Abusahmoud",
   publisher: "Omar Abusahmoud",
   icons: {
-    icon: "/icon",
-    apple: "/apple-icon",
+    icon: "/omar-logo.png",
+    shortcut: "/omar-logo.png",
+    apple: "/omar-logo.png",
   },
 };
 

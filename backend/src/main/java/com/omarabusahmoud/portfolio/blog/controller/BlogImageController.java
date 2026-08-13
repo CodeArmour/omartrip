@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/blog/admin/images")
+@RequestMapping("/api/v1/blog/admin")
 public class BlogImageController {
     private final CloudinaryProjectImageService images;
     private final PortfolioAuthorizationService authorization;
@@ -22,9 +22,15 @@ public class BlogImageController {
         this.authorization = authorization;
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProjectImageUploadResponse upload(@RequestPart("file") MultipartFile file, Authentication authentication) {
         authorization.requireOwner(authentication);
         return images.uploadBlog(file);
+    }
+
+    @PostMapping(value = "/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ProjectImageUploadResponse uploadAttachment(@RequestPart("file") MultipartFile file, Authentication authentication) {
+        authorization.requireOwner(authentication);
+        return images.uploadBlogAttachment(file);
     }
 }

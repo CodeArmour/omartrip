@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -73,6 +74,26 @@ export function FloatingNavigation() {
   return (
     <header className="floating-nav-shell">
       <div className="nav-left-controls">
+        <Link
+          className="nav-logo-control"
+          href={isHomePage ? "#home" : "/#home"}
+          aria-label="Omar Abusahmoud portfolio home"
+          onClick={(event) => {
+            if (isHomePage) {
+              event.preventDefault();
+              setMobileMenuOpen(false);
+              navigateTo("home");
+            }
+          }}
+        >
+          <Image
+            src="/omar-logo.png"
+            alt="Omar Abusahmoud"
+            width={40}
+            height={40}
+            priority
+          />
+        </Link>
         <button
           className="nav-control nav-menu-control"
           type="button"

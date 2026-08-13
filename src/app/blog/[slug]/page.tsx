@@ -46,7 +46,7 @@ export default async function BlogArticlePage({
 
       <div className="site-shell">
         <main className="blog-page">
-          <div className="blog-page-inner">
+          <div className="blog-page-inner blog-article-page-inner">
             <Link className="page-back-link" href="/blog">
               ← Back to blog
             </Link>

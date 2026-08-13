@@ -23,7 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CloudinaryProjectImageService {
     private static final long MAX_BYTES = 10L * 1024 * 1024;
+    private static final long MAX_ATTACHMENT_BYTES = 25L * 1024 * 1024;
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp", "image/avif");
+    private static final Set<String> ALLOWED_ATTACHMENT_EXTENSIONS = Set.of(
+            "pdf", "zip", "txt", "md", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv");
     private final CloudinaryProperties properties;
     private final Clock clock;
     private final RestClient client = RestClient.create();
@@ -47,6 +50,10 @@ public class CloudinaryProjectImageService {
 
     public ProjectImageUploadResponse uploadBlog(MultipartFile file) {
         return upload(file, properties.safeBlogFolder());
+    }
+
+    public ProjectImageUploadResponse uploadBlogAttachment(MultipartFile file) {
+        return uploadRaw(file, properties.safeBlogFolder() + "/attachments");
     }
 
     private ProjectImageUploadResponse upload(MultipartFile file, String folder) {
@@ -83,10 +90,58 @@ public class CloudinaryProjectImageService {
         }
     }
 
+    private ProjectImageUploadResponse uploadRaw(MultipartFile file, String folder) {
+        validateAttachment(file);
+        if (!properties.configured()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Cloudinary uploads are not configured");
+        }
+        long timestamp = clock.instant().getEpochSecond();
+        String signature = sha1("folder=" + folder + "&timestamp=" + timestamp + properties.apiSecret());
+        try {
+            ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
+                @Override public String getFilename() { return safeFilename(file.getOriginalFilename()); }
+            };
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", resource);
+            body.add("api_key", properties.apiKey());
+            body.add("timestamp", Long.toString(timestamp));
+            body.add("folder", folder);
+            body.add("signature", signature);
+            CloudinaryUploadApiResponse uploaded = client.post()
+                    .uri("https://api.cloudinary.com/v1_1/{cloudName}/raw/upload", properties.cloudName())
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body)
+                    .retrieve()
+                    .body(CloudinaryUploadApiResponse.class);
+            if (uploaded == null || uploaded.secureUrl() == null || uploaded.publicId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary returned an incomplete upload response");
+            }
+            return new ProjectImageUploadResponse(uploaded.secureUrl(), uploaded.publicId(), uploaded.width(), uploaded.height());
+        } catch (ResponseStatusException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "The attachment could not be uploaded", exception);
+        }
+    }
+
     private void validate(MultipartFile file) {
         if (file == null || file.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose an image to upload");
         if (file.getSize() > MAX_BYTES) throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Images must be 10 MB or smaller");
         if (!ALLOWED_TYPES.contains(file.getContentType())) throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Use a JPEG, PNG, WebP, or AVIF image");
+    }
+
+    private void validateAttachment(MultipartFile file) {
+        if (file == null || file.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose a file to upload");
+        if (file.getSize() > MAX_ATTACHMENT_BYTES) throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Attachments must be 25 MB or smaller");
+        String extension = extension(file.getOriginalFilename());
+        if (!ALLOWED_ATTACHMENT_EXTENSIONS.contains(extension)) {
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Use a PDF, document, spreadsheet, text, CSV, or ZIP file");
+        }
+    }
+
+    private String extension(String filename) {
+        if (filename == null || !filename.contains(".")) return "";
+        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
 
     private String safeFilename(String filename) {
