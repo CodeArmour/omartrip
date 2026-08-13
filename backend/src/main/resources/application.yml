@@ -8,6 +8,10 @@ spring:
     hikari:
       maximum-pool-size: ${DATABASE_POOL_SIZE:10}
       minimum-idle: 2
+  servlet:
+    multipart:
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:10MB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:10MB}
   jpa:
     open-in-view: false
     hibernate:

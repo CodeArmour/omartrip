@@ -103,6 +103,9 @@ const blankPost: BlogPostInput = {
   published: true,
 };
 
+const MAX_ARTICLE_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_ARTICLE_IMAGE_MB = MAX_ARTICLE_IMAGE_BYTES / 1024 / 1024;
+
 async function readJson<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as T | null;
   if (!response.ok || body === null) throw new Error("Blog request failed.");
@@ -502,6 +505,13 @@ export function BlogExperience({
   async function uploadArticleImage(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_ARTICLE_IMAGE_BYTES) {
+      setImageUploadError(
+        `This image is too large. Please upload an image smaller than ${MAX_ARTICLE_IMAGE_MB} MB.`,
+      );
+      event.target.value = "";
+      return;
+    }
     setUploadingImage(true);
     setImageUploadError("");
     try {
@@ -516,8 +526,14 @@ export function BlogExperience({
           body,
         },
       );
-      if (!response.ok)
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error(
+            `This image is too large. Please upload an image smaller than ${MAX_ARTICLE_IMAGE_MB} MB.`,
+          );
+        }
         throw new Error("The article image could not be uploaded.");
+      }
       const uploaded = (await response.json()) as BlogImageUpload;
       setDraft((current) => ({
         ...current,
@@ -525,8 +541,12 @@ export function BlogExperience({
         imageAlt: current.imageAlt || current.title,
       }));
       setFeedback("Article image uploaded.");
-    } catch {
-      setImageUploadError("The article image could not be uploaded.");
+    } catch (reason) {
+      setImageUploadError(
+        reason instanceof Error
+          ? reason.message
+          : "The article image could not be uploaded.",
+      );
     } finally {
       setUploadingImage(false);
       event.target.value = "";
