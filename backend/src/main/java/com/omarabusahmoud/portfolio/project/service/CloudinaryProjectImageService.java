@@ -26,7 +26,7 @@ public class CloudinaryProjectImageService {
     private static final long MAX_ATTACHMENT_BYTES = 25L * 1024 * 1024;
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp", "image/avif");
     private static final Set<String> ALLOWED_ATTACHMENT_EXTENSIONS = Set.of(
-            "pdf", "zip", "txt", "md", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv");
+            "pdf", "zip", "rar", "txt", "md", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv");
     private final CloudinaryProperties properties;
     private final Clock clock;
     private final RestClient client = RestClient.create();
@@ -135,7 +135,7 @@ public class CloudinaryProjectImageService {
         if (file.getSize() > MAX_ATTACHMENT_BYTES) throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Attachments must be 25 MB or smaller");
         String extension = extension(file.getOriginalFilename());
         if (!ALLOWED_ATTACHMENT_EXTENSIONS.contains(extension)) {
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Use a PDF, document, spreadsheet, text, CSV, or ZIP file");
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Use a PDF, document, spreadsheet, text, CSV, ZIP, or RAR file");
         }
     }
 

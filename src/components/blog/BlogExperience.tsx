@@ -109,6 +109,8 @@ const MAX_ARTICLE_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_ARTICLE_IMAGE_MB = MAX_ARTICLE_IMAGE_BYTES / 1024 / 1024;
 const MAX_ARTICLE_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 const MAX_ARTICLE_ATTACHMENT_MB = MAX_ARTICLE_ATTACHMENT_BYTES / 1024 / 1024;
+const ARTICLE_ATTACHMENT_ACCEPT =
+  ".pdf,.zip,.rar,.txt,.md,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv";
 
 async function readJson<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as T | null;
@@ -608,6 +610,11 @@ export function BlogExperience({
             `This file is too large. Please upload a file smaller than ${MAX_ARTICLE_ATTACHMENT_MB} MB.`,
           );
         }
+        if (response.status === 415) {
+          throw new Error(
+            "Use a PDF, document, spreadsheet, text, CSV, ZIP, or RAR file.",
+          );
+        }
         throw new Error("The attachment could not be uploaded.");
       }
       const uploaded = (await response.json()) as BlogImageUpload;
@@ -621,7 +628,7 @@ export function BlogExperience({
       setAttachmentUploadError(
         reason instanceof Error
           ? reason.message
-          : "The attachment could not be uploaded.",
+          : "The attachment could not be uploaded. Check that the backend is online and the file type is supported.",
       );
     } finally {
       setUploadingAttachment(false);
@@ -774,7 +781,7 @@ export function BlogExperience({
               Attachment file
               <input
                 type="file"
-                accept=".pdf,.zip,.txt,.md,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv"
+                accept={ARTICLE_ATTACHMENT_ACCEPT}
                 onChange={(event) => void uploadArticleAttachment(event)}
                 disabled={uploadingAttachment || busy}
               />
@@ -792,7 +799,7 @@ export function BlogExperience({
                 </span>
               ) : (
                 <span>
-                  PDF, docs, spreadsheets, text, CSV or ZIP up to{" "}
+                  PDF, docs, spreadsheets, text, CSV, ZIP or RAR up to{" "}
                   {MAX_ARTICLE_ATTACHMENT_MB} MB.
                 </span>
               )}

@@ -11,7 +11,7 @@ spring:
   servlet:
     multipart:
       max-file-size: ${UPLOAD_MAX_FILE_SIZE:25MB}
-      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:25MB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:35MB}
   jpa:
     open-in-view: false
     hibernate:
