@@ -4503,27 +4503,60 @@ h2 {
 .project-owner-controls {
   position: relative;
   z-index: 4;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto auto auto auto minmax(150px, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
   margin-bottom: 0.75rem;
-  padding: 0.55rem;
+  padding: 0.5rem;
   border: 1px solid rgba(207, 255, 116, 0.16);
-  border-radius: 16px;
-  background: var(--surface-olive);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(207, 255, 116, 0.045), transparent 44%),
+    var(--surface-olive);
+  box-shadow: 0 12px 34px rgba(8, 12, 5, 0.13);
 }
 .project-owner-controls > span {
-  margin-right: auto;
-  padding: 0.3rem 0.5rem;
+  justify-self: start;
+  padding: 0.44rem 0.62rem;
   border-radius: 999px;
   color: var(--warm-lime);
   background: rgba(207, 255, 116, 0.07);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
+  font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .project-owner-controls button {
-  min-width: 42px;
-  padding-inline: 0.65rem;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0.46rem 0.7rem;
+  border-color: rgba(207, 255, 116, 0.16);
+  background: rgba(207, 255, 116, 0.045);
+  font-size: 0.68rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.project-owner-controls .project-owner-action-icon {
+  width: 38px;
+  padding-inline: 0;
+}
+.project-owner-controls .project-owner-action-primary {
+  color: var(--text-primary);
+  background: rgba(207, 255, 116, 0.065);
+}
+.project-owner-controls .project-owner-action-copy {
+  justify-self: stretch;
+  color: var(--olive-deep);
+  border-color: rgba(207, 255, 116, 0.68);
+  background: var(--warm-lime);
+}
+.project-owner-controls .project-owner-action-danger {
+  color: #ffd8d1;
+  border-color: rgba(255, 120, 100, 0.26);
+  background: rgba(255, 120, 100, 0.055);
 }
 .project-owner-controls button.is-confirming {
   color: #ffd4cc;
@@ -4540,6 +4573,18 @@ h2 {
   outline: none;
   box-shadow: 0 0 0 3px rgba(207, 255, 116, 0.14);
   transform: translateY(-1px);
+}
+.project-owner-controls .project-owner-action-copy:hover:not(:disabled),
+.project-owner-controls .project-owner-action-copy:focus-visible {
+  color: var(--olive-deep);
+  background: #d9ff8c;
+}
+.project-owner-controls .project-owner-action-danger:hover:not(:disabled),
+.project-owner-controls .project-owner-action-danger:focus-visible {
+  color: #ffe7e2;
+  border-color: rgba(255, 120, 100, 0.5);
+  background: rgba(255, 120, 100, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 120, 100, 0.12);
 }
 .project-owner-controls button:disabled,
 .project-owner-editor button:disabled {
@@ -4681,8 +4726,59 @@ h2 {
   .project-owner-checkbox {
     grid-column: 1;
   }
+  .project-owner-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.5rem;
+  }
+  .project-owner-controls > span {
+    grid-column: 1 / -1;
+    width: fit-content;
+    font-size: 0.56rem;
+  }
   .project-owner-controls button {
-    flex: 1;
+    width: 100%;
+    min-height: 40px;
+    padding: 0.5rem 0.55rem;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .project-owner-controls .project-owner-action-icon {
+    width: 100%;
+    padding-inline: 0.55rem;
+  }
+  .project-owner-controls .project-owner-action-copy,
+  .project-owner-controls .project-owner-action-danger {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  .project-owner-controls svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+  .project-owner-editor {
+    border-radius: 18px;
+  }
+  .project-owner-editor > header {
+    align-items: flex-start;
+  }
+  .project-owner-editor h3 {
+    max-width: 100%;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .project-owner-editor > footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .project-owner-editor > footer button {
+    width: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {

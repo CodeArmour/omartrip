@@ -43,12 +43,20 @@ export function ProjectOwnerControls({
       className="project-owner-controls"
       aria-label={`Manage ${project.title}`}
     >
-      <span>{project.published === false ? "Draft" : "Published"}</span>
-      <button type="button" disabled={busy} onClick={onEdit}>
+      <span className="project-owner-status">
+        {project.published === false ? "Draft" : "Published"}
+      </span>
+      <button
+        type="button"
+        className="project-owner-action project-owner-action-primary"
+        disabled={busy}
+        onClick={onEdit}
+      >
         <Pencil aria-hidden="true" /> Edit
       </button>
       <button
         type="button"
+        className="project-owner-action project-owner-action-icon"
         aria-label={`Move ${project.title} up`}
         disabled={busy || index === 0}
         onClick={() => onMove(-1)}
@@ -57,13 +65,19 @@ export function ProjectOwnerControls({
       </button>
       <button
         type="button"
+        className="project-owner-action project-owner-action-icon"
         aria-label={`Move ${project.title} down`}
         disabled={busy || index === total - 1}
         onClick={() => onMove(1)}
       >
         <ArrowDown aria-hidden="true" />
       </button>
-      <button type="button" disabled={busy} onClick={onPublication}>
+      <button
+        type="button"
+        className="project-owner-action project-owner-action-primary"
+        disabled={busy}
+        onClick={onPublication}
+      >
         {project.published === false ? (
           <Eye aria-hidden="true" />
         ) : (
@@ -71,12 +85,19 @@ export function ProjectOwnerControls({
         )}
         {project.published === false ? "Publish" : "Unpublish"}
       </button>
-      <button type="button" disabled={busy} onClick={onCopyReviewLink}>
+      <button
+        type="button"
+        className="project-owner-action project-owner-action-copy"
+        disabled={busy}
+        onClick={onCopyReviewLink}
+      >
         <Copy aria-hidden="true" /> Copy review link
       </button>
       <button
         type="button"
-        className={confirmingDelete ? "is-confirming" : undefined}
+        className={`project-owner-action project-owner-action-danger${
+          confirmingDelete ? " is-confirming" : ""
+        }`}
         disabled={busy}
         onBlur={() => setConfirmingDelete(false)}
         onClick={() => {
