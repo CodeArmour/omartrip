@@ -10,6 +10,8 @@ import java.util.Set;
 import com.omarabusahmoud.portfolio.project.config.CloudinaryProperties;
 import com.omarabusahmoud.portfolio.project.dto.CloudinaryUploadApiResponse;
 import com.omarabusahmoud.portfolio.project.dto.ProjectImageUploadResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,11 +19,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CloudinaryProjectImageService {
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryProjectImageService.class);
     private static final long MAX_BYTES = 10L * 1024 * 1024;
     private static final long MAX_ATTACHMENT_BYTES = 25L * 1024 * 1024;
     private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/webp", "image/avif");
@@ -85,6 +89,12 @@ public class CloudinaryProjectImageService {
             return new ProjectImageUploadResponse(uploaded.secureUrl(), uploaded.publicId(), uploaded.width(), uploaded.height());
         } catch (ResponseStatusException exception) {
             throw exception;
+        } catch (RestClientResponseException exception) {
+            log.warn("Cloudinary image upload failed. status={} file={} response={}",
+                    exception.getStatusCode().value(),
+                    safeFilename(file.getOriginalFilename()),
+                    sanitizeProviderResponse(exception.getResponseBodyAsString()));
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary rejected the image upload. Check backend logs for the provider response.", exception);
         } catch (Exception exception) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "The image could not be uploaded", exception);
         }
@@ -121,6 +131,13 @@ public class CloudinaryProjectImageService {
             return new ProjectImageUploadResponse(uploaded.secureUrl(), uploaded.publicId(), uploaded.width(), uploaded.height());
         } catch (ResponseStatusException exception) {
             throw exception;
+        } catch (RestClientResponseException exception) {
+            log.warn("Cloudinary raw attachment upload failed. status={} file={} publicId={} response={}",
+                    exception.getStatusCode().value(),
+                    safeFilename(file.getOriginalFilename()),
+                    publicId,
+                    sanitizeProviderResponse(exception.getResponseBodyAsString()));
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary rejected the attachment upload. Check backend logs for the provider response.", exception);
         } catch (Exception exception) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "The attachment could not be uploaded", exception);
         }
@@ -157,6 +174,12 @@ public class CloudinaryProjectImageService {
         String base = extension.isBlank() ? safe : safe.substring(0, safe.length() - extension.length() - 1);
         if (base.isBlank()) base = "attachment";
         return base + "-" + timestamp + (extension.isBlank() ? "" : "." + extension);
+    }
+
+    private String sanitizeProviderResponse(String response) {
+        if (response == null || response.isBlank()) return "<empty>";
+        String compact = response.replaceAll("\\s+", " ").trim();
+        return compact.length() <= 500 ? compact : compact.substring(0, 500) + "...";
     }
 
     private String sha1(String value) {

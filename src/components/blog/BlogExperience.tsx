@@ -89,6 +89,12 @@ type BlogImageUpload = {
   height: number;
 };
 
+type ApiErrorResponse = {
+  code?: string;
+  message?: string;
+  errors?: Record<string, string>;
+};
+
 type BlogExperienceProps = {
   initialSlug?: string;
   mode?: "index" | "article";
@@ -116,6 +122,13 @@ async function readJson<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as T | null;
   if (!response.ok || body === null) throw new Error("Blog request failed.");
   return body;
+}
+
+async function readApiError(response: Response, fallback: string) {
+  const body = (await response
+    .json()
+    .catch(() => null)) as ApiErrorResponse | null;
+  return body?.message || fallback;
 }
 
 function formattedDate(value?: string) {
@@ -615,7 +628,9 @@ export function BlogExperience({
             "Use a PDF, document, spreadsheet, text, CSV, ZIP, or RAR file.",
           );
         }
-        throw new Error("The attachment could not be uploaded.");
+        throw new Error(
+          await readApiError(response, "The attachment could not be uploaded."),
+        );
       }
       const uploaded = (await response.json()) as BlogImageUpload;
       setDraft((current) => ({

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.omarabusahmoud.portfolio.booking.exception.BookingConflictException;
 import com.omarabusahmoud.portfolio.auth.exception.OwnerAccessRequiredException;
@@ -22,6 +23,26 @@ import com.omarabusahmoud.portfolio.workspace.exception.WorkspaceIntegrationExce
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(ResponseStatusException.class)
+    ResponseEntity<ApiError> responseStatus(ResponseStatusException exception) {
+        String code = switch (exception.getStatusCode().value()) {
+            case 400 -> "invalid";
+            case 401 -> "unauthenticated";
+            case 403 -> "forbidden";
+            case 404 -> "not_found";
+            case 413 -> "payload_too_large";
+            case 415 -> "unsupported_media_type";
+            case 502 -> "provider_error";
+            case 503 -> "service_unavailable";
+            default -> "request_failed";
+        };
+        String message = exception.getReason() == null || exception.getReason().isBlank()
+                ? "The request could not be completed."
+                : exception.getReason();
+        return ResponseEntity.status(exception.getStatusCode()).body(
+                new ApiError(code, message, Map.of()));
+    }
+
     @ExceptionHandler(WorkspaceIntegrationException.class)
     ResponseEntity<ApiError> workspace(WorkspaceIntegrationException exception) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
