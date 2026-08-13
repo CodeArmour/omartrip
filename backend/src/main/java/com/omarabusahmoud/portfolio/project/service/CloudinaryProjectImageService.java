@@ -96,7 +96,8 @@ public class CloudinaryProjectImageService {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Cloudinary uploads are not configured");
         }
         long timestamp = clock.instant().getEpochSecond();
-        String signature = sha1("folder=" + folder + "&timestamp=" + timestamp + properties.apiSecret());
+        String publicId = rawPublicId(file.getOriginalFilename(), timestamp);
+        String signature = sha1("folder=" + folder + "&public_id=" + publicId + "&timestamp=" + timestamp + properties.apiSecret());
         try {
             ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
                 @Override public String getFilename() { return safeFilename(file.getOriginalFilename()); }
@@ -106,6 +107,7 @@ public class CloudinaryProjectImageService {
             body.add("api_key", properties.apiKey());
             body.add("timestamp", Long.toString(timestamp));
             body.add("folder", folder);
+            body.add("public_id", publicId);
             body.add("signature", signature);
             CloudinaryUploadApiResponse uploaded = client.post()
                     .uri("https://api.cloudinary.com/v1_1/{cloudName}/raw/upload", properties.cloudName())
@@ -147,6 +149,14 @@ public class CloudinaryProjectImageService {
     private String safeFilename(String filename) {
         if (filename == null || filename.isBlank()) return "project-image";
         return filename.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
+    private String rawPublicId(String filename, long timestamp) {
+        String safe = safeFilename(filename);
+        String extension = extension(safe);
+        String base = extension.isBlank() ? safe : safe.substring(0, safe.length() - extension.length() - 1);
+        if (base.isBlank()) base = "attachment";
+        return base + "-" + timestamp + (extension.isBlank() ? "" : "." + extension);
     }
 
     private String sha1(String value) {
