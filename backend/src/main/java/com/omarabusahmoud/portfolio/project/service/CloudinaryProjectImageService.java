@@ -86,7 +86,7 @@ public class CloudinaryProjectImageService {
             if (uploaded == null || uploaded.secureUrl() == null || uploaded.publicId() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary returned an incomplete upload response");
             }
-            return new ProjectImageUploadResponse(uploaded.secureUrl(), uploaded.publicId(), uploaded.width(), uploaded.height());
+            return uploadResponse(uploaded);
         } catch (ResponseStatusException exception) {
             throw exception;
         } catch (RestClientResponseException exception) {
@@ -131,7 +131,7 @@ public class CloudinaryProjectImageService {
             if (uploaded == null || uploaded.secureUrl() == null || uploaded.publicId() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary returned an incomplete upload response");
             }
-            return new ProjectImageUploadResponse(uploaded.secureUrl(), uploaded.publicId(), uploaded.width(), uploaded.height());
+            return uploadResponse(uploaded);
         } catch (ResponseStatusException exception) {
             throw exception;
         } catch (RestClientResponseException exception) {
@@ -181,6 +181,14 @@ public class CloudinaryProjectImageService {
         String base = extension.isBlank() ? safe : safe.substring(0, safe.length() - extension.length() - 1);
         if (base.isBlank()) base = "attachment";
         return base + "-" + timestamp + (extension.isBlank() ? "" : "." + extension);
+    }
+
+    private ProjectImageUploadResponse uploadResponse(CloudinaryUploadApiResponse uploaded) {
+        return new ProjectImageUploadResponse(
+                uploaded.secureUrl(),
+                uploaded.publicId(),
+                uploaded.width() == null ? 0 : uploaded.width(),
+                uploaded.height() == null ? 0 : uploaded.height());
     }
 
     private String sanitizeProviderResponse(String response) {
