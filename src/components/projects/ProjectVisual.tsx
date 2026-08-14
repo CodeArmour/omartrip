@@ -22,6 +22,7 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const visualRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const readMoreButtonRef = useRef<HTMLButtonElement>(null);
   const closeDialogButtonRef = useRef<HTMLButtonElement>(null);
   const dialogTitleId = useId();
@@ -50,8 +51,6 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     closeDialogButtonRef.current?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,7 +62,6 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [closeReviewDialog, isReviewDialogOpen]);
@@ -216,13 +214,20 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
         <div
           className="project-review-dialog-layer"
           role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
+          onWheel={(event) => {
+            window.scrollBy({ top: event.deltaY, behavior: "auto" });
+          }}
+          onPointerDown={(event) => {
+            if (
+              event.target instanceof Node &&
+              !dialogRef.current?.contains(event.target)
+            ) {
               closeReviewDialog();
             }
           }}
         >
           <section
+            ref={dialogRef}
             className="project-review-dialog"
             role="dialog"
             aria-modal="true"
