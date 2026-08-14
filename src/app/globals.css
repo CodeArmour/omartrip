@@ -2180,9 +2180,8 @@ h2 {
   inset: 0;
   z-index: 1100;
   display: grid;
-  align-items: end;
-  justify-items: center;
-  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 0;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
   background: rgba(9, 12, 5, 0.62);
   backdrop-filter: blur(10px);
   animation: review-dialog-fade 220ms ease both;
@@ -2190,19 +2189,14 @@ h2 {
 
 .project-review-dialog {
   position: relative;
-  width: min(100%, 680px);
-  max-height: min(82vh, 640px);
+  width: min(100%, 640px);
+  max-height: min(78vh, 680px);
   overflow: auto;
   scrollbar-color: rgba(207, 255, 116, 0.46) transparent;
   scrollbar-width: thin;
-  padding: clamp(1.65rem, 3vw, 2.15rem);
-  padding-top: clamp(2.1rem, 4vw, 2.7rem);
-  padding-bottom: calc(
-    clamp(1.65rem, 3vw, 2.15rem) + env(safe-area-inset-bottom)
-  );
+  padding: clamp(1.45rem, 3vw, 2.1rem);
   border: 1px solid rgba(207, 255, 116, 0.32);
-  border-bottom: 0;
-  border-radius: 1.9rem 1.9rem 0 0;
+  border-radius: 1.6rem;
   color: var(--off-white);
   background:
     radial-gradient(
@@ -2217,24 +2211,12 @@ h2 {
   animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.project-review-dialog::before {
-  content: "";
-  position: absolute;
-  top: 0.78rem;
-  left: 50%;
-  width: 54px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(207, 255, 116, 0.42);
-  transform: translateX(-50%);
-}
-
 .project-review-dialog::-webkit-scrollbar {
   width: 8px;
 }
 
 .project-review-dialog::-webkit-scrollbar-track {
-  margin: 2rem 0 1rem;
+  margin: 1.2rem 0;
   border-radius: 999px;
   background: transparent;
 }
@@ -2333,14 +2315,12 @@ h2 {
 
 @media (max-width: 640px) {
   .project-review-dialog-layer {
-    padding-inline: 0;
+    padding: 1rem;
   }
 
   .project-review-dialog {
-    width: 100%;
-    max-height: 84vh;
-    border-inline: 0;
-    border-radius: 1.45rem 1.45rem 0 0;
+    max-height: 82vh;
+    border-radius: 1.35rem;
   }
 
   .project-review-dialog .project-review-profile {
@@ -2360,11 +2340,11 @@ h2 {
 @keyframes review-dialog-enter {
   from {
     opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(18px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
