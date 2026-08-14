@@ -96,6 +96,9 @@ public class CloudinaryProjectImageService {
                     sanitizeProviderResponse(exception.getResponseBodyAsString()));
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary rejected the image upload. Check backend logs for the provider response.", exception);
         } catch (Exception exception) {
+            log.warn("Cloudinary image upload failed before receiving provider response. file={} message={}",
+                    safeFilename(file.getOriginalFilename()),
+                    exception.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "The image could not be uploaded", exception);
         }
     }
@@ -139,6 +142,10 @@ public class CloudinaryProjectImageService {
                     sanitizeProviderResponse(exception.getResponseBodyAsString()));
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cloudinary rejected the attachment upload. Check backend logs for the provider response.", exception);
         } catch (Exception exception) {
+            log.warn("Cloudinary raw attachment upload failed before receiving provider response. file={} publicId={} message={}",
+                    safeFilename(file.getOriginalFilename()),
+                    publicId,
+                    exception.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "The attachment could not be uploaded", exception);
         }
     }

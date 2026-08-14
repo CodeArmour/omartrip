@@ -125,10 +125,20 @@ async function readJson<T>(response: Response): Promise<T> {
 }
 
 async function readApiError(response: Response, fallback: string) {
-  const body = (await response
-    .json()
-    .catch(() => null)) as ApiErrorResponse | null;
-  return body?.message || fallback;
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    const body = (await response
+      .json()
+      .catch(() => null)) as ApiErrorResponse | null;
+    return body?.message || fallback;
+  }
+
+  const text = await response.text().catch(() => "");
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) return fallback;
+  return normalized.length > 220
+    ? `${normalized.slice(0, 220)}...`
+    : normalized;
 }
 
 function formattedDate(value?: string) {

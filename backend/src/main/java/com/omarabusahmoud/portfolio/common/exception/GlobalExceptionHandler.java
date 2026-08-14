@@ -3,8 +3,12 @@ package com.omarabusahmoud.portfolio.common.exception;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,6 +27,22 @@ import com.omarabusahmoud.portfolio.workspace.exception.WorkspaceIntegrationExce
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiError> uploadTooLarge(MaxUploadSizeExceededException exception) {
+        log.warn("Multipart upload rejected because it exceeded configured limits. message={}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(
+                new ApiError("payload_too_large", "This upload is too large. Please use a smaller file.", Map.of()));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    ResponseEntity<ApiError> multipart(MultipartException exception) {
+        log.warn("Multipart upload could not be parsed. message={}", exception.getMessage());
+        return ResponseEntity.badRequest().body(
+                new ApiError("invalid_upload", "The uploaded file could not be read. Please try a smaller ZIP/RAR file.", Map.of()));
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
     ResponseEntity<ApiError> responseStatus(ResponseStatusException exception) {
         String code = switch (exception.getStatusCode().value()) {
