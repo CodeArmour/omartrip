@@ -2180,8 +2180,9 @@ h2 {
   inset: 0;
   z-index: 1100;
   display: grid;
-  place-items: center;
-  padding: clamp(1rem, 3vw, 2rem);
+  align-items: end;
+  justify-items: center;
+  padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) 0;
   background: rgba(9, 12, 5, 0.62);
   backdrop-filter: blur(10px);
   animation: review-dialog-fade 220ms ease both;
@@ -2189,14 +2190,19 @@ h2 {
 
 .project-review-dialog {
   position: relative;
-  width: min(100%, 620px);
-  max-height: min(78vh, 680px);
+  width: min(100%, 680px);
+  max-height: min(82vh, 640px);
   overflow: auto;
-  scrollbar-color: rgba(207, 255, 116, 0.56) rgba(207, 255, 116, 0.08);
+  scrollbar-color: rgba(207, 255, 116, 0.46) transparent;
   scrollbar-width: thin;
-  padding: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1.65rem, 3vw, 2.15rem);
+  padding-top: clamp(2.1rem, 4vw, 2.7rem);
+  padding-bottom: calc(
+    clamp(1.65rem, 3vw, 2.15rem) + env(safe-area-inset-bottom)
+  );
   border: 1px solid rgba(207, 255, 116, 0.32);
-  border-radius: 1.6rem;
+  border-bottom: 0;
+  border-radius: 1.9rem 1.9rem 0 0;
   color: var(--off-white);
   background:
     radial-gradient(
@@ -2211,20 +2217,32 @@ h2 {
   animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.project-review-dialog::before {
+  content: "";
+  position: absolute;
+  top: 0.78rem;
+  left: 50%;
+  width: 54px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(207, 255, 116, 0.42);
+  transform: translateX(-50%);
+}
+
 .project-review-dialog::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 .project-review-dialog::-webkit-scrollbar-track {
-  margin: 1.2rem 0;
+  margin: 2rem 0 1rem;
   border-radius: 999px;
-  background: rgba(207, 255, 116, 0.07);
+  background: transparent;
 }
 
 .project-review-dialog::-webkit-scrollbar-thumb {
-  border: 3px solid rgba(29, 37, 15, 0.96);
+  border: 2px solid rgba(29, 37, 15, 0.96);
   border-radius: 999px;
-  background: rgba(207, 255, 116, 0.58);
+  background: rgba(207, 255, 116, 0.46);
 }
 
 .project-review-dialog::-webkit-scrollbar-thumb:hover {
@@ -2313,6 +2331,23 @@ h2 {
   transform: translateY(-2px);
 }
 
+@media (max-width: 640px) {
+  .project-review-dialog-layer {
+    padding-inline: 0;
+  }
+
+  .project-review-dialog {
+    width: 100%;
+    max-height: 84vh;
+    border-inline: 0;
+    border-radius: 1.45rem 1.45rem 0 0;
+  }
+
+  .project-review-dialog .project-review-profile {
+    padding-right: 2.5rem;
+  }
+}
+
 @keyframes review-dialog-fade {
   from {
     opacity: 0;
@@ -2325,11 +2360,11 @@ h2 {
 @keyframes review-dialog-enter {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.98);
+    transform: translateY(100%);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
