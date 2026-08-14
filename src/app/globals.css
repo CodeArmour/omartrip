@@ -23,6 +23,9 @@
 :root[data-theme="light"] {
   --olive-ink: #f2efe5;
   --olive-deep: #253315;
+  --light-accent-olive: #66812d;
+  --light-accent-olive-strong: #3f541a;
+  --warm-lime: var(--light-accent-olive);
   --surface-olive: rgba(255, 252, 242, 0.84);
   --border-subtle: rgba(47, 58, 29, 0.18);
   --text-muted: #526044;
@@ -4990,6 +4993,7 @@ h2 {
     .guestbook-message-card,
     .guestbook-preview-note
   ) {
+  --warm-lime: #cfff74;
   --text-muted: rgba(245, 242, 232, 0.7);
   --page-text: var(--off-white);
   color: var(--off-white);
@@ -5030,7 +5034,7 @@ h2 {
 }
 
 :root[data-theme="light"] .nav-theme-control:hover {
-  color: #66812d;
+  color: var(--light-accent-olive);
 }
 
 :root[data-theme="light"] .nav-control,
@@ -5066,22 +5070,63 @@ h2 {
 }
 
 :root[data-theme="light"] .nav-link[aria-current="page"] {
-  color: #253315;
-  background: #cfff74;
+  color: var(--off-white);
+  background: var(--light-accent-olive);
   box-shadow: 0 4px 14px rgba(78, 103, 25, 0.18);
 }
 
 :root[data-theme="light"] .nav-call-control {
   border-color: rgba(47, 58, 29, 0.24);
-  color: #253315;
-  background: #cfff74;
+  color: var(--off-white);
+  background: var(--light-accent-olive);
   box-shadow: 0 10px 24px rgba(78, 103, 25, 0.16);
 }
 
 :root[data-theme="light"] .nav-call-control:hover,
 :root[data-theme="light"] .nav-call-control:focus-visible {
-  color: #253315;
-  background: #bdeb62;
+  color: var(--off-white);
+  background: var(--light-accent-olive-strong);
+}
+
+:root[data-theme="light"]
+  :is(
+    .projects-owner-bar button,
+    .project-owner-controls .project-owner-action-copy,
+    .project-owner-editor > footer button:last-child,
+    .blog-owner-bar button,
+    .guestbook-composer button,
+    .guestbook-review-actions .guestbook-review-approve
+  ) {
+  color: var(--off-white);
+  border-color: var(--light-accent-olive);
+  background: var(--light-accent-olive);
+}
+
+:root[data-theme="light"]
+  :is(
+    .projects-owner-bar button,
+    .project-owner-controls .project-owner-action-copy,
+    .project-owner-editor > footer button:last-child,
+    .blog-owner-bar button,
+    .guestbook-composer button,
+    .guestbook-review-actions .guestbook-review-approve
+  ):hover:not(:disabled),
+:root[data-theme="light"]
+  :is(
+    .projects-owner-bar button,
+    .project-owner-controls .project-owner-action-copy,
+    .project-owner-editor > footer button:last-child,
+    .blog-owner-bar button,
+    .guestbook-composer button,
+    .guestbook-review-actions .guestbook-review-approve
+  ):focus-visible {
+  color: var(--off-white);
+  background: var(--light-accent-olive-strong);
+}
+
+:root[data-theme="light"] .projects-github-link:hover {
+  color: var(--off-white);
+  background: var(--light-accent-olive);
 }
 
 :root[data-theme="light"] :is(.nav-account-menu, .nav-account-control) {
