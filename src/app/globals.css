@@ -2118,10 +2118,10 @@ h2 {
 .project-review-face blockquote {
   margin: 0;
   color: rgba(245, 242, 232, 0.9);
-  font-size: clamp(1.08rem, 2vw, 1.4rem);
-  font-weight: 570;
-  line-height: 1.55;
-  letter-spacing: -0.02em;
+  font-size: clamp(0.92rem, 1.35vw, 1.08rem);
+  font-weight: 540;
+  line-height: 1.62;
+  letter-spacing: -0.012em;
 }
 
 .project-review-copy {
@@ -2192,6 +2192,8 @@ h2 {
   width: min(100%, 620px);
   max-height: min(78vh, 680px);
   overflow: auto;
+  scrollbar-color: rgba(207, 255, 116, 0.56) rgba(207, 255, 116, 0.08);
+  scrollbar-width: thin;
   padding: clamp(1.25rem, 3vw, 2rem);
   border: 1px solid rgba(207, 255, 116, 0.32);
   border-radius: 1.6rem;
@@ -2207,6 +2209,26 @@ h2 {
     0 34px 100px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.project-review-dialog::-webkit-scrollbar {
+  width: 10px;
+}
+
+.project-review-dialog::-webkit-scrollbar-track {
+  margin: 1.2rem 0;
+  border-radius: 999px;
+  background: rgba(207, 255, 116, 0.07);
+}
+
+.project-review-dialog::-webkit-scrollbar-thumb {
+  border: 3px solid rgba(29, 37, 15, 0.96);
+  border-radius: 999px;
+  background: rgba(207, 255, 116, 0.58);
+}
+
+.project-review-dialog::-webkit-scrollbar-thumb:hover {
+  background: rgba(207, 255, 116, 0.78);
 }
 
 .project-review-dialog-close {
@@ -2257,10 +2279,10 @@ h2 {
 .project-review-dialog blockquote {
   margin: 0;
   color: rgba(245, 242, 232, 0.92);
-  font-size: clamp(1rem, 2vw, 1.22rem);
-  font-weight: 560;
-  line-height: 1.72;
-  letter-spacing: -0.015em;
+  font-size: clamp(0.94rem, 1.45vw, 1.08rem);
+  font-weight: 530;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
 }
 
 .project-review-dialog-action {
