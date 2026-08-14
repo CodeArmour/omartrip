@@ -2124,12 +2124,191 @@ h2 {
   letter-spacing: -0.02em;
 }
 
+.project-review-copy {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.project-review-copy blockquote.is-clamped {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.project-review-read-more {
+  width: fit-content;
+  min-height: 38px;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  color: var(--warm-lime);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 220ms ease,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-review-read-more:hover,
+.project-review-read-more:focus-visible {
+  color: var(--off-white);
+  transform: translateX(3px);
+}
+
+.project-review-read-more:focus-visible {
+  outline: 2px solid var(--warm-lime);
+  outline-offset: 5px;
+  border-radius: 999px;
+}
+
 .project-review-back {
   align-self: flex-start;
   margin: 1.5rem 4px 4px;
   border-color: rgba(207, 255, 116, 0.34);
   color: var(--warm-lime);
   background: rgba(207, 255, 116, 0.07);
+}
+
+.project-review-dialog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: rgba(9, 12, 5, 0.62);
+  backdrop-filter: blur(10px);
+  animation: review-dialog-fade 220ms ease both;
+}
+
+.project-review-dialog {
+  position: relative;
+  width: min(100%, 620px);
+  max-height: min(78vh, 680px);
+  overflow: auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(207, 255, 116, 0.32);
+  border-radius: 1.6rem;
+  color: var(--off-white);
+  background:
+    radial-gradient(
+      circle at 82% 8%,
+      rgba(207, 255, 116, 0.16),
+      transparent 34%
+    ),
+    linear-gradient(145deg, rgba(47, 58, 29, 0.98), rgba(17, 24, 10, 0.98));
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.project-review-dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(207, 255, 116, 0.22);
+  border-radius: 50%;
+  color: var(--warm-lime);
+  background: rgba(207, 255, 116, 0.08);
+  cursor: pointer;
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease,
+    transform 220ms ease;
+}
+
+.project-review-dialog-close:hover,
+.project-review-dialog-close:focus-visible {
+  border-color: rgba(207, 255, 116, 0.58);
+  background: rgba(207, 255, 116, 0.16);
+  transform: translateY(-2px);
+}
+
+.project-review-dialog-close:focus-visible,
+.project-review-dialog-action:focus-visible {
+  outline: 2px solid var(--warm-lime);
+  outline-offset: 4px;
+}
+
+.project-review-dialog-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.project-review-dialog .project-review-profile {
+  padding-right: 3.25rem;
+}
+
+.project-review-dialog .project-review-rating {
+  margin: 1.75rem 0 1.25rem;
+}
+
+.project-review-dialog blockquote {
+  margin: 0;
+  color: rgba(245, 242, 232, 0.92);
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  font-weight: 560;
+  line-height: 1.72;
+  letter-spacing: -0.015em;
+}
+
+.project-review-dialog-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.75rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(207, 255, 116, 0.34);
+  border-radius: 999px;
+  color: var(--olive-deep);
+  background: var(--warm-lime);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    filter 220ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-review-dialog-action:hover,
+.project-review-dialog-action:focus-visible {
+  filter: brightness(1.04);
+  transform: translateY(-2px);
+}
+
+@keyframes review-dialog-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes review-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .project-visual-spotlight {
@@ -3635,7 +3814,13 @@ h2 {
 
   .project-flip-inner,
   .project-hover-actions,
-  .project-review-back {
+  .project-review-back,
+  .project-review-read-more,
+  .project-review-dialog-layer,
+  .project-review-dialog,
+  .project-review-dialog-close,
+  .project-review-dialog-action {
+    animation: none;
     transition: none;
   }
 
