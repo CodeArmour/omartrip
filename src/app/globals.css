@@ -2189,11 +2189,8 @@ h2 {
 
 .project-review-dialog {
   position: relative;
-  width: min(100%, 640px);
-  max-height: min(78vh, 680px);
-  overflow: auto;
-  scrollbar-color: rgba(207, 255, 116, 0.46) transparent;
-  scrollbar-width: thin;
+  width: min(100%, 700px);
+  overflow: visible;
   padding: clamp(1.45rem, 3vw, 2.1rem);
   border: 1px solid rgba(207, 255, 116, 0.32);
   border-radius: 1.6rem;
@@ -2209,26 +2206,6 @@ h2 {
     0 34px 100px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.project-review-dialog::-webkit-scrollbar {
-  width: 8px;
-}
-
-.project-review-dialog::-webkit-scrollbar-track {
-  margin: 1.2rem 0;
-  border-radius: 999px;
-  background: transparent;
-}
-
-.project-review-dialog::-webkit-scrollbar-thumb {
-  border: 2px solid rgba(29, 37, 15, 0.96);
-  border-radius: 999px;
-  background: rgba(207, 255, 116, 0.46);
-}
-
-.project-review-dialog::-webkit-scrollbar-thumb:hover {
-  background: rgba(207, 255, 116, 0.78);
 }
 
 .project-review-dialog-close {
@@ -2319,7 +2296,6 @@ h2 {
   }
 
   .project-review-dialog {
-    max-height: 82vh;
     border-radius: 1.35rem;
   }
 
