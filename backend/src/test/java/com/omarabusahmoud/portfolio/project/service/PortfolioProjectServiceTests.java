@@ -33,6 +33,9 @@ class PortfolioProjectServiceTests {
             assertThat(response.title()).isEqualTo("Example Project");
             assertThat(response.published()).isTrue();
             assertThat(response.technologies()).containsExactly("Next.js", "TypeScript");
+            assertThat(response.caseStudy().problem()).isEqualTo("The original problem.");
+            assertThat(response.caseStudy().solution()).isEqualTo("The implemented solution.");
+            assertThat(response.caseStudy().result()).isEqualTo("The measured result.");
         });
     }
 
@@ -62,7 +65,8 @@ class PortfolioProjectServiceTests {
                 "Example Project", "Example", "Project", "Web application",
                 "A concise project description.", "/projects/example.png", null, "Example project interface",
                 1200, 800, "center top", "https://example.com", null, ProjectTone.LIME,
-                List.of("Next.js", "TypeScript"), "Example Customer", "/projects/example.png",
+                List.of("Next.js", "TypeScript"), "The original problem.", "The implemented solution.",
+                "The measured result.", "Example Customer", "/projects/example.png",
                 "Example customer", BigDecimal.valueOf(5), "A thoughtful customer review.", published), order, now);
     }
 }

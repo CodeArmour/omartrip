@@ -256,7 +256,20 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
             aria-label={`${project.customerReview.customerName} review`}
           >
             <div className="project-review-summary">
-              <p className="eyebrow">Client testimonial</p>
+              <div className="project-review-card-profile">
+                <div className="project-review-card-photo">
+                  <Image
+                    src={project.customerReview.customerPhoto}
+                    alt={project.customerReview.customerPhotoAlt}
+                    fill
+                    sizes="52px"
+                  />
+                </div>
+                <div>
+                  <p className="eyebrow">Client testimonial</p>
+                  <strong>{project.customerReview.customerName}</strong>
+                </div>
+              </div>
               <div
                 className="project-review-stars"
                 aria-label={`${project.customerReview.rating.toFixed(1)} out of 5 stars`}

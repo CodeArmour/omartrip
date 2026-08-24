@@ -22,6 +22,7 @@ public record PortfolioProjectResponse(
         String liveUrl,
         String repositoryUrl,
         String tone,
+        ProjectCaseStudyResponse caseStudy,
         ProjectReviewResponse customerReview,
         int displayOrder,
         boolean published,
@@ -32,6 +33,8 @@ public record PortfolioProjectResponse(
                 project.getCategory(), project.getDescription(), project.getImagePath(), project.getImagePublicId(), project.getImageAlt(),
                 project.getImageWidth(), project.getImageHeight(), project.getImagePosition(), project.getTechnologies(),
                 project.getLiveUrl(), project.getRepositoryUrl(), project.getTone().name().toLowerCase(),
+                new ProjectCaseStudyResponse(project.getCaseStudyProblem(), project.getCaseStudySolution(),
+                        project.getCaseStudyResult()),
                 new ProjectReviewResponse(project.getCustomerName(), project.getCustomerPhoto(),
                         project.getCustomerPhotoAlt(), project.getCustomerRating(), project.getCustomerReview()),
                 project.getDisplayOrder(), project.isPublished(), project.getUpdatedAt());

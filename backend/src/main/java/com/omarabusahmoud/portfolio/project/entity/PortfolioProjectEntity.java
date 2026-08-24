@@ -38,6 +38,9 @@ public class PortfolioProjectEntity {
     @Column(name = "live_url", length = 500) private String liveUrl;
     @Column(name = "repository_url", length = 500) private String repositoryUrl;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 16) private ProjectTone tone;
+    @Column(name = "case_study_problem", nullable = false, length = 1400) private String caseStudyProblem;
+    @Column(name = "case_study_solution", nullable = false, length = 1400) private String caseStudySolution;
+    @Column(name = "case_study_result", nullable = false, length = 1400) private String caseStudyResult;
     @Column(name = "customer_name", nullable = false, length = 120) private String customerName;
     @Column(name = "customer_photo", nullable = false, length = 500) private String customerPhoto;
     @Column(name = "customer_photo_alt", nullable = false, length = 240) private String customerPhotoAlt;
@@ -78,6 +81,9 @@ public class PortfolioProjectEntity {
         liveUrl = cleanNullable(request.liveUrl());
         repositoryUrl = cleanNullable(request.repositoryUrl());
         tone = request.tone();
+        caseStudyProblem = request.caseStudyProblem().trim();
+        caseStudySolution = request.caseStudySolution().trim();
+        caseStudyResult = request.caseStudyResult().trim();
         customerName = request.customerName().trim();
         customerPhoto = request.customerPhoto().trim();
         customerPhotoAlt = request.customerPhotoAlt().trim();
@@ -120,6 +126,9 @@ public class PortfolioProjectEntity {
     public String getLiveUrl() { return liveUrl; }
     public String getRepositoryUrl() { return repositoryUrl; }
     public ProjectTone getTone() { return tone; }
+    public String getCaseStudyProblem() { return caseStudyProblem; }
+    public String getCaseStudySolution() { return caseStudySolution; }
+    public String getCaseStudyResult() { return caseStudyResult; }
     public String getCustomerName() { return customerName; }
     public String getCustomerPhoto() { return customerPhoto; }
     public String getCustomerPhotoAlt() { return customerPhotoAlt; }

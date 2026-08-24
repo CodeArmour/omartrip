@@ -82,7 +82,8 @@ class ProjectReviewInvitationServiceTests {
         return new PortfolioProjectEntity(UUID.randomUUID(), new UpsertProjectRequest(
                 "Example Project", "Example", "Project", "Web application", "Project description",
                 "/projects/project1.png", null, "Project interface", 1200, 800, "center top", null, null,
-                ProjectTone.LIME, List.of("Next.js"), "Old Customer", "/projects/project1.png",
+                ProjectTone.LIME, List.of("Next.js"), "The original problem.", "The implemented solution.",
+                "The measured result.", "Old Customer", "/projects/project1.png",
                 "Customer image", BigDecimal.valueOf(5), "The original review text.", false), 0, now);
     }
 }

@@ -21,6 +21,9 @@ export type ProjectInput = {
   repositoryUrl?: string;
   tone: "LIME" | "CREAM";
   technologies: string[];
+  caseStudyProblem: string;
+  caseStudySolution: string;
+  caseStudyResult: string;
   customerName: string;
   customerPhoto: string;
   customerPhotoAlt: string;
@@ -96,6 +99,9 @@ export function ProjectOwnerEditor({
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean),
+      caseStudyProblem: String(data.get("caseStudyProblem")),
+      caseStudySolution: String(data.get("caseStudySolution")),
+      caseStudyResult: String(data.get("caseStudyResult")),
       customerName: String(data.get("customerName")),
       customerPhoto: String(data.get("customerPhoto")),
       customerPhotoAlt: String(data.get("customerPhotoAlt")),
@@ -110,6 +116,9 @@ export function ProjectOwnerEditor({
     if (name === "titleLineOne") return project.titleLines[0];
     if (name === "titleLineTwo") return project.titleLines[1];
     if (name === "imagePath") return project.image;
+    if (name === "caseStudyProblem") return project.caseStudy.problem;
+    if (name === "caseStudySolution") return project.caseStudy.solution;
+    if (name === "caseStudyResult") return project.caseStudy.result;
     return String(project[name as keyof Project] ?? fallback);
   };
 
@@ -277,6 +286,36 @@ export function ProjectOwnerEditor({
             }
           />
         </label>
+        <fieldset className="project-owner-fieldset">
+          <legend>Case study page</legend>
+          <label>
+            Problem
+            <textarea
+              name="caseStudyProblem"
+              required
+              maxLength={1400}
+              defaultValue={field("caseStudyProblem")}
+            />
+          </label>
+          <label>
+            Solution
+            <textarea
+              name="caseStudySolution"
+              required
+              maxLength={1400}
+              defaultValue={field("caseStudySolution")}
+            />
+          </label>
+          <label>
+            Result
+            <textarea
+              name="caseStudyResult"
+              required
+              maxLength={1400}
+              defaultValue={field("caseStudyResult")}
+            />
+          </label>
+        </fieldset>
         <label>
           Customer name
           <input

@@ -22,6 +22,7 @@ import {
   projects as fallbackProjects,
   projectCaseStudy,
   projectSlug,
+  type ProjectCaseStudy,
   type Project,
 } from "./projectsData";
 
@@ -31,6 +32,7 @@ type ApiProject = Omit<
 > & {
   id: string;
   titleLines: string[];
+  caseStudy?: ProjectCaseStudy;
   displayOrder: number;
   published: boolean;
 };
@@ -41,7 +43,7 @@ function normalizeProjects(items: ApiProject[]): Project[] {
     slug: projectSlug(item.title),
     number: String(index + 1).padStart(2, "0"),
     titleLines: [item.titleLines[0] ?? item.title, item.titleLines[1] ?? ""],
-    caseStudy: projectCaseStudy(item.title),
+    caseStudy: item.caseStudy ?? projectCaseStudy(item.title),
   }));
 }
 

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,26 +7,72 @@ import { notFound } from "next/navigation";
 import { DotGridBackground } from "@/components/background/DotGridBackground";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { FloatingNavigation } from "@/components/navigation/FloatingNavigation";
-import { projectPath, projects } from "@/components/projects/projectsData";
-import { buildPageMetadata } from "@/lib/seo";
+import {
+  projectCaseStudy,
+  projectPath,
+  projects as fallbackProjects,
+  projectSlug,
+  type Project,
+  type ProjectCaseStudy,
+} from "@/components/projects/projectsData";
+import { backendUrl, buildPageMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 type ProjectCaseStudyPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-function findProject(slug: string) {
+type ApiProject = Omit<
+  Project,
+  "number" | "titleLines" | "slug" | "caseStudy"
+> & {
+  id: string;
+  titleLines: string[];
+  caseStudy?: ProjectCaseStudy;
+  displayOrder: number;
+  published: boolean;
+};
+
+async function loadProjects() {
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/projects`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("Project API unavailable");
+    const items = (await response.json()) as ApiProject[];
+    return items.map((item, index): Project => {
+      const slug = projectSlug(item.title);
+      return {
+        ...item,
+        slug,
+        number: String(index + 1).padStart(2, "0"),
+        titleLines: [
+          item.titleLines[0] ?? item.title,
+          item.titleLines[1] ?? "",
+        ],
+        caseStudy: item.caseStudy ?? projectCaseStudy(item.title, slug),
+      };
+    });
+  } catch {
+    return fallbackProjects;
+  }
+}
+
+async function findProject(slug: string) {
+  const projects = await loadProjects();
   return projects.find((project) => project.slug === slug);
 }
 
 export function generateStaticParams() {
-  return projects.map((project) => ({ slug: project.slug }));
+  return fallbackProjects.map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: ProjectCaseStudyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = findProject(slug);
+  const project = await findProject(slug);
 
   if (!project) {
     return buildPageMetadata({
@@ -47,14 +93,9 @@ export async function generateMetadata({
 
 function CaseStudySection({ title, copy }: { title: string; copy: string }) {
   return (
-    <section className="case-study-panel">
-      <span aria-hidden="true">
-        <CheckCircle2 />
-      </span>
-      <div>
-        <h2>{title}</h2>
-        <p>{copy}</p>
-      </div>
+    <section className="case-study-section">
+      <h2>{title}</h2>
+      <p>{copy}</p>
     </section>
   );
 }
@@ -63,7 +104,7 @@ export default async function ProjectCaseStudyPage({
   params,
 }: ProjectCaseStudyPageProps) {
   const { slug } = await params;
-  const project = findProject(slug);
+  const project = await findProject(slug);
 
   if (!project) notFound();
 
@@ -106,7 +147,7 @@ export default async function ProjectCaseStudyPage({
               />
             </div>
 
-            <div className="case-study-grid">
+            <div className="case-study-body">
               <CaseStudySection
                 title="Problem"
                 copy={project.caseStudy.problem}
