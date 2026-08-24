@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { DotGridBackground } from "@/components/background/DotGridBackground";
 import { BookingScheduler } from "@/components/booking/BookingScheduler";
+import { BookCallButton } from "@/components/contact-dialog/BookCallButton";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { FloatingNavigation } from "@/components/navigation/FloatingNavigation";
 
@@ -18,11 +19,19 @@ export default function BookingPage() {
       <div className="site-shell">
         <main className="booking-page">
           <header className="booking-hero">
-            <p className="eyebrow">30 minute session</p>
+            <p className="eyebrow">Have a project in mind?</p>
             <h1>
-              Let&apos;s bring your <span>ideas</span> to life
+              Let&apos;s build something that works for your{" "}
+              <span>business.</span>
             </h1>
-            <p>Select a date and time below to schedule our call.</p>
+            <p>
+              Tell me what you&apos;re looking to build, improve or automate. We
+              can have a short conversation about your goals and see how I can
+              help.
+            </p>
+            <BookCallButton className="booking-hero-cta">
+              <span>Discuss Your Project</span>
+            </BookCallButton>
           </header>
           <BookingScheduler />
         </main>
