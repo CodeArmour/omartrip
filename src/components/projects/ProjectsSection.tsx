@@ -18,9 +18,17 @@ import {
   type ProjectInput,
 } from "./ProjectOwnerEditor";
 import { ProjectOwnerControls } from "./ProjectOwnerControls";
-import { projects as fallbackProjects, type Project } from "./projectsData";
+import {
+  projects as fallbackProjects,
+  projectCaseStudy,
+  projectSlug,
+  type Project,
+} from "./projectsData";
 
-type ApiProject = Omit<Project, "number" | "titleLines"> & {
+type ApiProject = Omit<
+  Project,
+  "number" | "titleLines" | "slug" | "caseStudy"
+> & {
   id: string;
   titleLines: string[];
   displayOrder: number;
@@ -30,8 +38,10 @@ type ApiProject = Omit<Project, "number" | "titleLines"> & {
 function normalizeProjects(items: ApiProject[]): Project[] {
   return items.map((item, index) => ({
     ...item,
+    slug: projectSlug(item.title),
     number: String(index + 1).padStart(2, "0"),
     titleLines: [item.titleLines[0] ?? item.title, item.titleLines[1] ?? ""],
+    caseStudy: projectCaseStudy(item.title),
   }));
 }
 

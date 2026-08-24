@@ -241,9 +241,7 @@ async function run() {
     reviewState.filledStars !== 5 ||
     reviewState.rating !== "5.0 out of 5 stars" ||
     !returnedToFront ||
-    result.externalLinks.length !== 3 ||
-    !result.externalLinks.includes("https://moon-two-flame.vercel.app/") ||
-    !result.externalLinks.includes("https://www.andaluciagroup.eu/") ||
+    result.externalLinks.length !== 1 ||
     !result.externalLinks.includes("https://github.com/CodeArmour") ||
     mobileState.documentWidth > mobileState.viewportWidth ||
     !mobileState.revealed ||

@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  ArrowUpRight,
-  CodeXml,
-  MessageSquareText,
-  RotateCcw,
-  Star,
-  X,
-} from "lucide-react";
+import { CodeXml, MessageSquareText, RotateCcw, Star, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { Project } from "./projectsData";
+import { projectPath, type Project } from "./projectsData";
 import { useCardTilt } from "./useCardTilt";
 
 type ProjectVisualProps = {
@@ -210,20 +204,15 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
             </div>
 
             <div className="project-front-actions">
-              {project.liveUrl ? (
-                <a
-                  className="project-view-link"
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  aria-label={`View ${project.title} case study`}
-                  tabIndex={isFlipped ? -1 : 0}
-                >
-                  <CodeXml aria-hidden="true" />
-                  <span>View Case Study</span>
-                  <ArrowUpRight aria-hidden="true" />
-                </a>
-              ) : null}
+              <Link
+                className="project-view-link"
+                href={projectPath(project)}
+                aria-label={`View ${project.title} case study`}
+                tabIndex={isFlipped ? -1 : 0}
+              >
+                <CodeXml aria-hidden="true" />
+                <span>View Case Study</span>
+              </Link>
               <button
                 className="project-review-button"
                 type="button"
