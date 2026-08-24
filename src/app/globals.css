@@ -2178,53 +2178,142 @@ h2 {
 .project-review-dialog-layer {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: 9999;
   display: grid;
   place-items: center;
-  padding: clamp(1rem, 3vw, 2rem);
-  background:
-    radial-gradient(
-      circle at 50% 48%,
-      rgba(207, 255, 116, 0.14),
-      transparent 32%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(9, 12, 5, 0.82),
-      rgba(30, 38, 18, 0.78)
-    );
-  backdrop-filter: blur(14px) saturate(1.08);
-  animation: review-dialog-fade 220ms ease both;
+  padding: 24px 16px;
+  overflow: hidden;
+  background: rgba(5, 10, 3, 0.82);
+  backdrop-filter: blur(10px);
+  animation: review-dialog-fade 240ms ease both;
+}
+
+.project-review-dialog-layer.is-closing {
+  pointer-events: none;
+  animation: review-dialog-fade-out 200ms ease both;
 }
 
 .project-review-dialog {
   position: relative;
-  width: min(100%, 700px);
-  overflow: visible;
-  padding: clamp(1.45rem, 3vw, 2.1rem);
-  border: 1px solid rgba(207, 255, 116, 0.32);
-  border-radius: 1.6rem;
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(207, 255, 116, 0.36);
+  border-radius: 24px;
   color: var(--off-white);
-  background:
-    radial-gradient(
-      circle at 82% 8%,
-      rgba(207, 255, 116, 0.16),
-      transparent 34%
-    ),
-    linear-gradient(145deg, rgba(47, 58, 29, 0.98), rgba(17, 24, 10, 0.98));
+  background: #11190a;
   box-shadow:
-    0 34px 100px rgba(0, 0, 0, 0.38),
+    0 34px 110px rgba(0, 0, 0, 0.62),
+    0 0 0 1px rgba(245, 242, 232, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  animation: review-dialog-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(207, 255, 116, 0.48) rgba(245, 242, 232, 0.08);
+  animation: review-dialog-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.project-review-dialog-layer.is-closing .project-review-dialog {
+  animation: review-dialog-exit 200ms ease both;
+}
+
+.project-review-dialog::-webkit-scrollbar {
+  width: 8px;
+}
+
+.project-review-dialog::-webkit-scrollbar-track {
+  background: rgba(245, 242, 232, 0.08);
+  border-radius: 999px;
+}
+
+.project-review-dialog::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(207, 255, 116, 0.48);
+}
+
+.project-review-dialog-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
+.project-review-dialog-profile {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.project-review-dialog-photo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  overflow: hidden;
+  border: 2px solid rgba(207, 255, 116, 0.52);
+  border-radius: 50%;
+  background: var(--olive-deep);
+}
+
+.project-review-dialog-photo img {
+  object-fit: cover;
+}
+
+.project-review-dialog-profile .eyebrow {
+  margin-bottom: 0.45rem;
+  font-size: 0.6rem;
+}
+
+.project-review-dialog-profile h4 {
+  margin: 0;
+  color: var(--off-white);
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.project-review-dialog-body {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.project-review-dialog-rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  color: var(--warm-lime);
+}
+
+.project-review-dialog-rating strong {
+  color: rgba(245, 242, 232, 0.78);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.project-review-dialog-stars {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.project-review-dialog-stars svg {
+  width: 19px;
+  height: 19px;
+  color: rgba(207, 255, 116, 0.28);
+}
+
+.project-review-dialog-stars svg.is-filled {
+  color: var(--warm-lime);
+  fill: currentColor;
 }
 
 .project-review-dialog-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   display: inline-grid;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid rgba(207, 255, 116, 0.22);
   border-radius: 50%;
@@ -2244,8 +2333,7 @@ h2 {
   transform: translateY(-2px);
 }
 
-.project-review-dialog-close:focus-visible,
-.project-review-dialog-action:focus-visible {
+.project-review-dialog-close:focus-visible {
   outline: 2px solid var(--warm-lime);
   outline-offset: 4px;
 }
@@ -2255,49 +2343,13 @@ h2 {
   height: 18px;
 }
 
-.project-review-dialog .project-review-profile {
-  padding-right: 3.25rem;
-}
-
-.project-review-dialog .project-review-rating {
-  margin: 1.75rem 0 1.25rem;
-}
-
 .project-review-dialog blockquote {
   margin: 0;
-  color: rgba(245, 242, 232, 0.92);
-  font-size: clamp(0.94rem, 1.45vw, 1.08rem);
-  font-weight: 530;
-  line-height: 1.7;
-  letter-spacing: -0.01em;
-}
-
-.project-review-dialog-action {
-  display: inline-flex;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1.75rem;
-  padding: 0.72rem 1rem;
-  border: 1px solid rgba(207, 255, 116, 0.34);
-  border-radius: 999px;
-  color: var(--olive-deep);
-  background: var(--warm-lime);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    filter 220ms ease,
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.project-review-dialog-action:hover,
-.project-review-dialog-action:focus-visible {
-  filter: brightness(1.04);
-  transform: translateY(-2px);
+  color: rgba(245, 242, 232, 0.94);
+  font-size: clamp(1rem, 2.4vw, 1.12rem);
+  font-weight: 560;
+  line-height: 1.72;
+  letter-spacing: 0;
 }
 
 @media (max-width: 640px) {
@@ -2306,11 +2358,29 @@ h2 {
   }
 
   .project-review-dialog {
-    border-radius: 1.35rem;
+    max-height: calc(100svh - 32px);
+    padding: 1.15rem;
+    border-radius: 20px;
   }
 
-  .project-review-dialog .project-review-profile {
-    padding-right: 2.5rem;
+  .project-review-dialog-header {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    margin-bottom: 1.2rem;
+  }
+
+  .project-review-dialog-profile {
+    gap: 0.75rem;
+  }
+
+  .project-review-dialog-photo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .project-review-dialog-rating {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -2323,14 +2393,34 @@ h2 {
   }
 }
 
+@keyframes review-dialog-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @keyframes review-dialog-enter {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.98);
+    transform: translateY(10px) scale(0.97);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes review-dialog-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
   }
 }
 
@@ -3841,8 +3931,7 @@ h2 {
   .project-review-read-more,
   .project-review-dialog-layer,
   .project-review-dialog,
-  .project-review-dialog-close,
-  .project-review-dialog-action {
+  .project-review-dialog-close {
     animation: none;
     transition: none;
   }

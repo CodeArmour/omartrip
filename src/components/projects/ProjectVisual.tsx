@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { Project } from "./projectsData";
 import { useCardTilt } from "./useCardTilt";
@@ -21,10 +22,12 @@ type ProjectVisualProps = {
 export function ProjectVisual({ project }: ProjectVisualProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [isReviewDialogClosing, setIsReviewDialogClosing] = useState(false);
   const visualRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const readMoreButtonRef = useRef<HTMLButtonElement>(null);
   const closeDialogButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
   const dialogTitleId = useId();
   const dialogDescriptionId = useId();
   useCardTilt(visualRef);
@@ -38,12 +41,46 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
   };
 
   const openReviewDialog = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setIsReviewDialogClosing(false);
     setIsReviewDialogOpen(true);
   };
 
   const closeReviewDialog = useCallback(() => {
-    setIsReviewDialogOpen(false);
-    readMoreButtonRef.current?.focus({ preventScroll: true });
+    setIsReviewDialogClosing(true);
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsReviewDialogOpen(false);
+      setIsReviewDialogClosing(false);
+      closeTimerRef.current = null;
+      readMoreButtonRef.current?.focus({ preventScroll: true });
+    }, 220);
+  }, []);
+
+  useEffect(() => {
+    if (!isReviewDialogOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isReviewDialogOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -56,6 +93,11 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeReviewDialog();
+        return;
+      }
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeDialogButtonRef.current?.focus({ preventScroll: true });
       }
     };
 
@@ -65,6 +107,85 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [closeReviewDialog, isReviewDialogOpen]);
+
+  const reviewDialog = isReviewDialogOpen
+    ? createPortal(
+        <div
+          className={`project-review-dialog-layer${
+            isReviewDialogClosing ? " is-closing" : ""
+          }`}
+          role="presentation"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeReviewDialog();
+            }
+          }}
+        >
+          <section
+            ref={dialogRef}
+            className="project-review-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={dialogTitleId}
+            aria-describedby={dialogDescriptionId}
+          >
+            <header className="project-review-dialog-header">
+              <div className="project-review-dialog-profile">
+                <div className="project-review-dialog-photo">
+                  <Image
+                    src={project.customerReview.customerPhoto}
+                    alt={project.customerReview.customerPhotoAlt}
+                    fill
+                    sizes="64px"
+                  />
+                </div>
+                <div>
+                  <p className="eyebrow">Full customer review</p>
+                  <h4 id={dialogTitleId}>
+                    {project.customerReview.customerName}
+                  </h4>
+                </div>
+              </div>
+              <button
+                ref={closeDialogButtonRef}
+                className="project-review-dialog-close"
+                type="button"
+                aria-label="Close full customer review"
+                onClick={closeReviewDialog}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+
+            <div className="project-review-dialog-body">
+              <div
+                className="project-review-dialog-rating"
+                aria-label={`${project.customerReview.rating.toFixed(1)} out of 5 stars`}
+              >
+                <div className="project-review-dialog-stars" aria-hidden="true">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      key={index}
+                      className={
+                        index + 1 <= Math.round(project.customerReview.rating)
+                          ? "is-filled"
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
+                <strong>
+                  {project.customerReview.rating.toFixed(1)} / 5.0
+                </strong>
+              </div>
+
+              <blockquote id={dialogDescriptionId}>{reviewText}</blockquote>
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )
+    : null;
 
   return (
     <>
@@ -210,89 +331,7 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
         </div>
       </div>
 
-      {isReviewDialogOpen ? (
-        <div
-          className="project-review-dialog-layer"
-          role="presentation"
-          onWheel={(event) => {
-            window.scrollBy({ top: event.deltaY, behavior: "auto" });
-          }}
-          onPointerDown={(event) => {
-            if (
-              event.target instanceof Node &&
-              !dialogRef.current?.contains(event.target)
-            ) {
-              closeReviewDialog();
-            }
-          }}
-        >
-          <section
-            ref={dialogRef}
-            className="project-review-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={dialogTitleId}
-            aria-describedby={dialogDescriptionId}
-          >
-            <button
-              ref={closeDialogButtonRef}
-              className="project-review-dialog-close"
-              type="button"
-              aria-label="Close full review"
-              onClick={closeReviewDialog}
-            >
-              <X aria-hidden="true" />
-            </button>
-
-            <div className="project-review-profile">
-              <div className="project-review-photo">
-                <Image
-                  src={project.customerReview.customerPhoto}
-                  alt={project.customerReview.customerPhotoAlt}
-                  fill
-                  sizes="76px"
-                />
-              </div>
-              <div>
-                <p className="eyebrow">Full customer review</p>
-                <h4 id={dialogTitleId}>
-                  {project.customerReview.customerName}
-                </h4>
-              </div>
-            </div>
-
-            <div
-              className="project-review-rating"
-              aria-label={`${project.customerReview.rating.toFixed(1)} out of 5 stars`}
-            >
-              <strong>{project.customerReview.rating.toFixed(1)}</strong>
-              <span aria-hidden="true">/ 5.0</span>
-              <div className="project-review-stars" aria-hidden="true">
-                {Array.from({ length: 5 }, (_, index) => (
-                  <Star
-                    key={index}
-                    className={
-                      index + 1 <= Math.round(project.customerReview.rating)
-                        ? "is-filled"
-                        : undefined
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-
-            <blockquote id={dialogDescriptionId}>{reviewText}</blockquote>
-
-            <button
-              className="project-review-dialog-action"
-              type="button"
-              onClick={closeReviewDialog}
-            >
-              Back to review card
-            </button>
-          </section>
-        </div>
-      ) : null}
+      {reviewDialog}
     </>
   );
 }
