@@ -18,7 +18,7 @@ export type AboutImage = {
 };
 
 export type ExperienceItem = {
-  id: "miners" | "university" | "competitions";
+  id: "approach" | "university" | "competitions";
   title: string;
   description: string;
   image: AboutImage;
@@ -42,12 +42,12 @@ export const defaultAboutImage: AboutImage = {
 
 export const experiences: ExperienceItem[] = [
   {
-    id: "miners",
-    title: "Miners Group",
-    description:
-      "I am the founder of Miners Group, a software services company delivering web, mobile, custom software, cloud and AI solutions around real business needs.",
-    image: defaultAboutImage,
-  },
+  id: "approach",
+  title: "How I Work",
+  description:
+    "I work with businesses to turn ideas and real-world challenges into thoughtful digital products, from modern web experiences to custom software, cloud and AI solutions.",
+  image: defaultAboutImage,
+},
   {
     id: "university",
     title: "University",
