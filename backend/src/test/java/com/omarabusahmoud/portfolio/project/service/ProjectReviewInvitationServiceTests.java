@@ -52,6 +52,7 @@ class ProjectReviewInvitationServiceTests {
         assertThat(project.getCustomerRating()).isEqualByComparingTo("4.5");
         assertThat(project.getCustomerReview()).contains("thoughtful");
         assertThat(project.getCustomerPhoto()).isEqualTo("https://example.com/avatar.png");
+        assertThat(project.isPublished()).isTrue();
         assertThat(invitation.isAvailable(now)).isFalse();
         verify(projects).save(project);
         verify(invitations).save(invitation);
@@ -62,6 +63,6 @@ class ProjectReviewInvitationServiceTests {
                 "Example Project", "Example", "Project", "Web application", "Project description",
                 "/projects/project1.png", null, "Project interface", 1200, 800, "center top", null, null,
                 ProjectTone.LIME, List.of("Next.js"), "Old Customer", "/projects/project1.png",
-                "Customer image", BigDecimal.valueOf(5), "The original review text.", true), 0, now);
+                "Customer image", BigDecimal.valueOf(5), "The original review text.", false), 0, now);
     }
 }
