@@ -203,20 +203,24 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
             className="project-visual-face project-visual-front"
             aria-hidden={isFlipped}
           >
-            <p>{project.description}</p>
+            <div className="project-front-summary">
+              <p className="project-front-meta">{project.category}</p>
+              <h4>{project.title}</h4>
+              <p>{project.description}</p>
+            </div>
 
-            <div className="project-hover-actions">
+            <div className="project-front-actions">
               {project.liveUrl ? (
                 <a
                   className="project-view-link"
                   href={project.liveUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`View ${project.title} live project`}
+                  aria-label={`View ${project.title} case study`}
                   tabIndex={isFlipped ? -1 : 0}
                 >
                   <CodeXml aria-hidden="true" />
-                  <span>View</span>
+                  <span>View Case Study</span>
                   <ArrowUpRight aria-hidden="true" />
                 </a>
               ) : null}
@@ -229,7 +233,7 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
                 onClick={() => setReviewVisible(true)}
               >
                 <MessageSquareText aria-hidden="true" />
-                <span>Review</span>
+                <span>Client Testimonial</span>
               </button>
             </div>
 
@@ -262,28 +266,12 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
             aria-hidden={!isFlipped}
             aria-label={`${project.customerReview.customerName} review`}
           >
-            <div className="project-review-profile">
-              <div className="project-review-photo">
-                <Image
-                  src={project.customerReview.customerPhoto}
-                  alt={project.customerReview.customerPhotoAlt}
-                  fill
-                  sizes="72px"
-                />
-              </div>
-              <div>
-                <p className="eyebrow">Customer review</p>
-                <h4>{project.customerReview.customerName}</h4>
-              </div>
-            </div>
-
-            <div
-              className="project-review-rating"
-              aria-label={`${project.customerReview.rating.toFixed(1)} out of 5 stars`}
-            >
-              <strong>{project.customerReview.rating.toFixed(1)}</strong>
-              <span aria-hidden="true">/ 5.0</span>
-              <div className="project-review-stars" aria-hidden="true">
+            <div className="project-review-summary">
+              <p className="eyebrow">Client testimonial</p>
+              <div
+                className="project-review-stars"
+                aria-label={`${project.customerReview.rating.toFixed(1)} out of 5 stars`}
+              >
                 {Array.from({ length: 5 }, (_, index) => (
                   <Star
                     key={index}
@@ -295,38 +283,35 @@ export function ProjectVisual({ project }: ProjectVisualProps) {
                   />
                 ))}
               </div>
-            </div>
-
-            <div className="project-review-copy">
               <blockquote className={shouldClampReview ? "is-clamped" : ""}>
                 {reviewText}
               </blockquote>
-              {shouldClampReview ? (
-                <button
-                  ref={readMoreButtonRef}
-                  className="project-review-read-more"
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-label={`Read full review from ${project.customerReview.customerName}`}
-                  tabIndex={isFlipped ? 0 : -1}
-                  onClick={openReviewDialog}
-                >
-                  <span aria-hidden="true">... </span>Read more
-                </button>
-              ) : null}
             </div>
 
-            <button
-              className="project-review-back"
-              type="button"
-              aria-label={`Return to ${project.title} project details`}
-              aria-pressed={isFlipped}
-              tabIndex={isFlipped ? 0 : -1}
-              onClick={() => setReviewVisible(false)}
-            >
-              <RotateCcw aria-hidden="true" />
-              <span>Back to project</span>
-            </button>
+            <div className="project-review-actions">
+              <button
+                ref={readMoreButtonRef}
+                className="project-review-read-more"
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`Read full review from ${project.customerReview.customerName}`}
+                tabIndex={isFlipped ? 0 : -1}
+                onClick={openReviewDialog}
+              >
+                Read Full Review
+              </button>
+              <button
+                className="project-review-back"
+                type="button"
+                aria-label={`Return to ${project.title} project details`}
+                aria-pressed={isFlipped}
+                tabIndex={isFlipped ? 0 : -1}
+                onClick={() => setReviewVisible(false)}
+              >
+                <RotateCcw aria-hidden="true" />
+                <span>Back to project</span>
+              </button>
+            </div>
           </section>
         </div>
       </div>

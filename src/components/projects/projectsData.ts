@@ -33,34 +33,9 @@ export type Project = {
 export const projects: Project[] = [
   {
     number: "01",
-    title: "Moon Glow Travel Agent",
-    titleLines: ["Moon Glow", "Travel Agent"],
-    category: "Travel website",
-    description:
-      "An editorial travel experience designed to help visitors discover destinations and begin planning a tailored journey.",
-    image: "/projects/project1.png",
-    imageAlt:
-      "Moon Glow Travel Agent website showing curated destinations in Egypt, Saudi Arabia, Qatar and Dubai",
-    imageWidth: 1393,
-    imageHeight: 967,
-    imagePosition: "center top",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
-    liveUrl: "https://moon-two-flame.vercel.app/",
-    tone: "lime",
-    customerReview: {
-      customerName: "Moon Glow Team",
-      customerPhoto: "/projects/project1.png",
-      customerPhotoAlt: "Moon Glow Travel Agent brand preview",
-      rating: 5,
-      review:
-        "Omar translated our travel concept into a clear, polished experience that feels inviting and makes destinations easy to explore.",
-    },
-  },
-  {
-    number: "02",
     title: "Andalucia Engineering Consulting",
     titleLines: ["Andalucia Engineering", "Consulting"],
-    category: "Corporate website",
+    category: "Engineering · Website",
     description:
       "A confident corporate presence that organizes consultancy services, industries and project expertise into a clear digital introduction.",
     image: "/projects/project2.png",
@@ -79,6 +54,31 @@ export const projects: Project[] = [
       rating: 5,
       review:
         "The new website presents our engineering services with confidence and gives visitors a much clearer path through our expertise.",
+    },
+  },
+  {
+    number: "02",
+    title: "Moon Glow Travel",
+    titleLines: ["Moon Glow", "Travel"],
+    category: "Travel · Website",
+    description:
+      "An editorial travel experience designed to help visitors discover destinations and begin planning a tailored journey.",
+    image: "/projects/project1.png",
+    imageAlt:
+      "Moon Glow Travel website showing curated destinations in Egypt, Saudi Arabia, Qatar and Dubai",
+    imageWidth: 1393,
+    imageHeight: 967,
+    imagePosition: "center top",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
+    liveUrl: "https://moon-two-flame.vercel.app/",
+    tone: "lime",
+    customerReview: {
+      customerName: "Moon Glow Team",
+      customerPhoto: "/projects/project1.png",
+      customerPhotoAlt: "Moon Glow Travel brand preview",
+      rating: 5,
+      review:
+        "Omar translated our travel concept into a clear, polished experience that feels inviting and makes destinations easy to explore.",
     },
   },
 ];

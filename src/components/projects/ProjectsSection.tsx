@@ -216,7 +216,7 @@ export function ProjectsSection() {
     >
       <header className="projects-heading" data-scroll-reveal>
         <p className="eyebrow">Portfolio</p>
-        <LusterTitle id="projects-title">Featured Projects</LusterTitle>
+        <LusterTitle id="projects-title">Selected Work</LusterTitle>
         <p>
           A selection of projects that reflect how I design, build and deliver
           digital products.

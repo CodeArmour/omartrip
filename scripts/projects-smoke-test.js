@@ -107,7 +107,7 @@ async function run() {
     filledStars: node.querySelectorAll(".project-review-stars .is-filled")
       .length,
     rating: node
-      .querySelector(".project-review-rating")
+      .querySelector(".project-review-stars")
       .getAttribute("aria-label"),
   }));
   await firstVisual.screenshot({
@@ -221,8 +221,8 @@ async function run() {
     images.some(
       ({ complete, naturalWidth }) => !complete || naturalWidth === 0,
     ) ||
-    !images[0].source.includes("project1.png") ||
-    !images[1].source.includes("project2.png") ||
+    !images[0].source.includes("project2.png") ||
+    !images[1].source.includes("project1.png") ||
     !pointerState.active ||
     pointerState.rotateX === "0deg" ||
     pointerState.rotateY === "0deg" ||

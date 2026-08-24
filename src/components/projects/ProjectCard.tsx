@@ -22,8 +22,6 @@ export function ProjectCard({
     >
       <header className="project-entry-heading">
         <div className="project-meta">
-          <span>{project.number}</span>
-          <i aria-hidden="true" />
           <span>{project.category}</span>
         </div>
         <h3 aria-label={project.title}>
