@@ -103,7 +103,6 @@ public class PortfolioProjectEntity {
         }
         customerRating = rating;
         customerReview = review;
-        published = true;
         updatedAt = now;
     }
     public UUID getId() { return id; }

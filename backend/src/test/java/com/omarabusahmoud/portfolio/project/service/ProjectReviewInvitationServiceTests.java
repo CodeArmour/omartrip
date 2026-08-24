@@ -28,6 +28,26 @@ import org.junit.jupiter.api.Test;
 
 class ProjectReviewInvitationServiceTests {
     @Test
+    void findsReviewInvitationForAnUnpublishedProject() {
+        Instant now = Instant.parse("2026-08-10T10:00:00Z");
+        PortfolioProjectRepository projects = mock(PortfolioProjectRepository.class);
+        ProjectReviewInvitationRepository invitations = mock(ProjectReviewInvitationRepository.class);
+        GuestbookUserService users = mock(GuestbookUserService.class);
+        PortfolioProjectEntity project = project(now);
+        ProjectReviewInvitationEntity invitation = new ProjectReviewInvitationEntity(
+                UUID.randomUUID(), project, "a".repeat(64), now.plusSeconds(3600), now);
+        when(invitations.findByTokenHash(anyString())).thenReturn(Optional.of(invitation));
+        ProjectReviewInvitationService service = new ProjectReviewInvitationService(
+                invitations, projects, Clock.fixed(now, ZoneOffset.UTC), users);
+
+        var response = service.find("secure-review-token-that-is-long-enough-12345");
+
+        assertThat(project.isPublished()).isFalse();
+        assertThat(response.projectId()).isEqualTo(project.getId());
+        assertThat(response.projectTitle()).isEqualTo("Example Project");
+    }
+
+    @Test
     void appliesAReviewAndConsumesTheOneTimeInvitation() {
         Instant now = Instant.parse("2026-08-10T10:00:00Z");
         PortfolioProjectRepository projects = mock(PortfolioProjectRepository.class);
@@ -52,7 +72,7 @@ class ProjectReviewInvitationServiceTests {
         assertThat(project.getCustomerRating()).isEqualByComparingTo("4.5");
         assertThat(project.getCustomerReview()).contains("thoughtful");
         assertThat(project.getCustomerPhoto()).isEqualTo("https://example.com/avatar.png");
-        assertThat(project.isPublished()).isTrue();
+        assertThat(project.isPublished()).isFalse();
         assertThat(invitation.isAvailable(now)).isFalse();
         verify(projects).save(project);
         verify(invitations).save(invitation);
